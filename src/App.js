@@ -1,73 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { getTickets, createTicket } from './services/api';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/Header';    // Importación default
+import Footer from './components/Footer';    // Importación default
+import Home from './pages/Home';             // Importación default
+import PedirTurno from './pages/PedirTurno'; // Importación default
+import Registrarse from './pages/Registrarse'; // Importación default
+import './App.css';
 
 function App() {
-  const [tickets, setTickets] = useState([]);
-  const [formData, setFormData] = useState({ usuario: '', descripcion: '' });
-
-  // Cargar tickets al iniciar
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const data = await getTickets();
-        setTickets(data);
-      } catch (error) {
-        console.error('Error fetching tickets:', error);
-      }
-    };
-    fetchTickets();
-  }, []);
-
-  // Manejar cambios en el formulario
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Enviar nuevo ticket
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const newTicket = await createTicket({ ...formData, estado: 'Pendiente' });
-      setTickets([...tickets, newTicket]);
-      setFormData({ usuario: '', descripcion: '' });
-    } catch (error) {
-      console.error('Error creating ticket:', error);
-    }
-  };
-
   return (
-    <div>
-      <h1>Sistema de Atención a Usuarios</h1>
-      <h2>Tickets</h2>
-      <ul>
-        {tickets.map((ticket) => (
-          <li key={ticket.id}>
-            {ticket.usuario} - {ticket.descripcion} ({ticket.estado})
-          </li>
-        ))}
-      </ul>
-
-      <h2>Crear Ticket</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="usuario"
-          value={formData.usuario}
-          onChange={handleChange}
-          placeholder="Usuario"
-          required
-        />
-        <textarea
-          name="descripcion"
-          value={formData.descripcion}
-          onChange={handleChange}
-          placeholder="Descripción"
-          required
-        />
-        <button type="submit">Enviar</button>
-      </form>
-    </div>
+    <Router>
+      <div style={styles.app}>
+        <Header />
+        <main style={styles.main}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/pedir-turno" element={<PedirTurno />} />
+            <Route path="/registrarse" element={<Registrarse />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
-export default App;
+const styles = {
+  app: { minHeight: '100vh', backgroundColor: '#F5F6F5', display: 'flex', flexDirection: 'column' },
+  main: { flex: 1, paddingBottom: '60px' },
+};
+
+export default App;  // Asegúrate de que esté aquí
