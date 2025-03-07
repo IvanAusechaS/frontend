@@ -1,11 +1,11 @@
 import React from 'react';
 import Nav from './Nav';
 
-const Header = () => {
+const Header = ({ user, setUser }) => {
   return (
     <header style={styles.header}>
       <h1 style={styles.title}>Sistema de Atención a Usuarios</h1>
-      <Nav />
+      <Nav user={user} setUser={setUser} />
     </header>
   );
 };
@@ -15,4 +15,4 @@ const styles = {
   title: { margin: 0, fontSize: '2em' },
 };
 
-export default Header; // Asegúrate de que esté aquí
+export default Header;
