@@ -52,7 +52,7 @@ const styles = {
   navList: { listStyle: 'none', padding: 0, display: 'flex', justifyContent: 'center', gap: '20px' },
   navItem: { display: 'inline' },
   link: { color: '#FFFFFF', textDecoration: 'none', fontSize: '1.2em', padding: '10px 15px', borderRadius: '5px', transition: 'background-color 0.3s' },
-  button: { backgroundColor: '#50C878', color: '#FFFFFF', border: 'none', padding: '10px 15px', borderRadius: '5px', cursor: 'pointer' },
+  button: { backgroundColor: '#ca3bcd', color: '#FFFFFF', border: 'none', padding: '10px 15px', borderRadius: '5px', cursor: 'pointer' },
 };
 
 export default Nav;

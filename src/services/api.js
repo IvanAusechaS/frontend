@@ -2,34 +2,48 @@ import axios from 'axios';
 
 const API_URL = 'http://127.0.0.1:8000/api/';
 
-export const loginUser = async (loginField, password) => {
-    const response = await axios.post(`${API_URL}login/`, { login_field: loginField, password });
-    return response.data;
-  };
-  
-  export const logoutUser = async (token) => {
-    const response = await axios.post(`${API_URL}logout/`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return response.data;
-  };
-  
-  export const registerUser = async (cedula, email, nombre, telefono, password) => {
-    const response = await axios.post(`${API_URL}registrarse/`, { cedula, email, nombre, telefono, password });
-    return response.data;
-  };
-  
-  export const getPuntosAtencion = async () => {
-    const response = await axios.get(`${API_URL}puntos-atencion/`);
-    return response.data;
-  };
-  
-  export const getTurnos = async (token) => {
-    const response = await axios.get(`${API_URL}turnos/`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return response.data;
-  };
+export const loginUser = async (cedula, password) => {
+  const response = await axios.post(`${API_URL}login/`, { cedula, password });
+  return response.data;
+};
+
+export const logoutUser = async (token) => {
+  const response = await axios.post(`${API_URL}logout/`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const registerUser = async (cedula, email, nombre, telefono, password) => {
+  const response = await axios.post(`${API_URL}registrarse/`, { cedula, email, nombre, telefono, password });
+  return response.data;
+};
+
+export const getPuntosAtencion = async () => {
+  const response = await axios.get(`${API_URL}puntos-atencion/`);
+  return response.data;
+};
+
+export const getTurnos = async (token) => {
+  const response = await axios.get(`${API_URL}turnos/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const updateTurno = async (id, estado, token) => {
+  const response = await axios.patch(`${API_URL}turnos/${id}/`, { estado }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const createTicket = async (ticketData, token) => {
+  const response = await axios.post(`${API_URL}tickets/`, ticketData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
 
 export const getUsuarios = async () => {
     const response = await axios.get(`${API_URL}usuarios/`);
@@ -48,11 +62,6 @@ export const createPuntoAtencion = async (puntoData) => {
 
 export const getTickets = async () => {
     const response = await axios.get(`${API_URL}tickets/`);
-    return response.data;
-};
-
-export const createTicket = async (ticketData) => {
-    const response = await axios.post(`${API_URL}tickets/`, ticketData);
     return response.data;
 };
 

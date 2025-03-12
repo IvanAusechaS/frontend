@@ -1,162 +1,102 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { buscarUsuarioPorCedula, createTicket, getPuntosAtencion } from '../services/api';
+import { getPuntosAtencion, createTicket } from '../services/api';
 
-const PedirTurno = () => {
-  const navigate = useNavigate();
-  const [cedula, setCedula] = useState('');
-  const [usuario, setUsuario] = useState(null);
-  const [tipoCita, setTipoCita] = useState('');
-  const [puntoAtencion, setPuntoAtencion] = useState('');
-  const [discapacidad, setDiscapacidad] = useState('');
+const PedirTurno = ({ user: userProp }) => {
   const [puntosAtencion, setPuntosAtencion] = useState([]);
+  const [tipoCita, setTipoCita] = useState('medica');
+  const [puntoAtencionId, setPuntoAtencionId] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [prioridad, setPrioridad] = useState('N');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  // Obtener user desde props o localStorage, con fallback a objeto vacío
+  const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
   useEffect(() => {
-    const fetchPuntosAtencion = async () => {
+    const fetchPuntos = async () => {
       try {
         const data = await getPuntosAtencion();
         setPuntosAtencion(data);
+        setPuntoAtencionId(data[0]?.id || '');
       } catch (err) {
         setError('Error al cargar puntos de atención');
       }
     };
-    fetchPuntosAtencion();
+    fetchPuntos();
   }, []);
-
-  const verificarCedula = async () => {
-    try {
-      const data = await buscarUsuarioPorCedula(cedula);
-      setUsuario(data);
-      setError('');
-    } catch (err) {
-      setError('Usuario no encontrado. Por favor, regístrate.');
-      setTimeout(() => navigate('/registrarse'), 2000);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!usuario) return;
-
-    const prioridad = discapacidad ? 'P' : 'N'; // Prioridad alta si hay discapacidad
-    const ticketData = {
-      usuario: usuario.id,
-      punto_atencion: puntoAtencion,
-      tipo_cita: tipoCita,
-      prioridad: prioridad,
-      descripcion: `${tipoCita} - ${discapacidad || 'Sin discapacidad'}`,
-      estado: 'Pendiente',
-    };
-
     try {
-      await createTicket(ticketData);
-      alert('Turno solicitado con éxito');
-      setCedula('');
-      setUsuario(null);
-      setTipoCita('');
-      setPuntoAtencion('');
-      setDiscapacidad('');
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No hay token de autenticación');
+      if (!user.id) throw new Error('No se encontró el ID del usuario');
+      const ticketData = {
+        usuario_id: user.id,
+        punto_atencion_id: puntoAtencionId,
+        tipo_cita: tipoCita,
+        prioridad,
+        descripcion
+      };
+      console.log('Datos enviados:', ticketData); // Para depuración
+      const response = await createTicket(ticketData, token);
+      console.log('Respuesta del backend:', response); // Para depuración
+      alert('Turno solicitado exitosamente');
+      navigate('/');
     } catch (err) {
-      setError('Error al solicitar turno');
+      console.error('Error completo:', err.response ? err.response.data : err.message);
+      setError(`Error al crear el turno: ${err.response ? JSON.stringify(err.response.data) : err.message}`);
     }
   };
-
-  const discapacidades = [
-    'Ninguna',
-    'Motriz',
-    'Visual',
-    'Auditiva',
-    'Intelectual',
-    'Psicosocial',
-    'Múltiple',
-  ];
 
   return (
     <div style={styles.container}>
       <h2>Pedir Turno</h2>
       {error && <p style={styles.error}>{error}</p>}
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <label style={styles.label}>Tipo de Cita:</label>
+        <select value={tipoCita} onChange={(e) => setTipoCita(e.target.value)} style={styles.input}>
+          <option value="medica">Cita Médica</option>
+          <option value="odontologica">Cita Odontológica</option>
+        </select>
 
-      {!usuario ? (
-        <div>
-          <label style={styles.label}>Número de Cédula:</label>
-          <input
-            type="text"
-            value={cedula}
-            onChange={(e) => setCedula(e.target.value)}
-            style={styles.input}
-          />
-          <button onClick={verificarCedula} style={styles.button}>Verificar</button>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <p>Bienvenido, {usuario.nombre}</p>
+        <label style={styles.label}>Punto de Atención:</label>
+        <select value={puntoAtencionId} onChange={(e) => setPuntoAtencionId(e.target.value)} style={styles.input}>
+          {puntosAtencion.map((punto) => (
+            <option key={punto.id} value={punto.id}>{punto.nombre}</option>
+          ))}
+        </select>
 
-          <label style={styles.label}>Tipo de Cita:</label>
-          <select
-            value={tipoCita}
-            onChange={(e) => setTipoCita(e.target.value)}
-            style={styles.select}
-            required
-          >
-            <option value="">Seleccione</option>
-            <option value="medica">Cita Médica</option>
-            <option value="odontologica">Cita Odontológica</option>
-          </select>
+        <label style={styles.label}>Prioridad:</label>
+        <select value={prioridad} onChange={(e) => setPrioridad(e.target.value)} style={styles.input}>
+          <option value="N">Normal</option>
+          <option value="P">Alta</option>
+        </select>
 
-          <label style={styles.label}>Punto de Atención:</label>
-          <select
-            value={puntoAtencion}
-            onChange={(e) => setPuntoAtencion(e.target.value)}
-            style={styles.select}
-            required
-          >
-            <option value="">Seleccione</option>
-            {puntosAtencion.map((punto) => (
-              <option key={punto.id} value={punto.id}>{punto.nombre}</option>
-            ))}
-          </select>
+        <label style={styles.label}>Descripción:</label>
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          style={styles.textarea}
+          required
+        />
 
-          <label style={styles.label}>Discapacidad:</label>
-          <select
-            value={discapacidad}
-            onChange={(e) => setDiscapacidad(e.target.value)}
-            style={styles.select}
-          >
-            <option value="">Seleccione</option>
-            {discapacidades.map((disc) => (
-              <option key={disc} value={disc}>{disc}</option>
-            ))}
-          </select>
-
-          <button type="submit" style={styles.button}>Solicitar Turno</button>
-        </form>
-      )}
+        <button type="submit" style={styles.button}>Solicitar Turno</button>
+      </form>
     </div>
   );
 };
 
 const styles = {
-  container: {
-    padding: '20px',
-    textAlign: 'center',
-    maxWidth: '600px',
-    margin: '0 auto',
-  },
+  container: { padding: '20px', textAlign: 'center', maxWidth: '400px', margin: '0 auto' },
   form: { display: 'flex', flexDirection: 'column', gap: '15px' },
   label: { fontSize: '1.1em', color: '#333333' },
   input: { padding: '10px', fontSize: '1em', borderRadius: '5px', border: '1px solid #ccc' },
-  select: { padding: '10px', fontSize: '1em', borderRadius: '5px', border: '1px solid #ccc' },
-  button: {
-    padding: '10px 20px',
-    backgroundColor: '#50C878',
-    color: '#FFFFFF',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '1.1em',
-  },
-  error: { color: 'red', marginBottom: '10px' },
+  textarea: { padding: '10px', fontSize: '1em', borderRadius: '5px', border: '1px solid #ccc', minHeight: '100px' },
+  button: { padding: '10px', backgroundColor: '#50C878', color: '#FFFFFF', border: 'none', borderRadius: '5px', cursor: 'pointer' },
+  error: { color: 'red' },
 };
 
 export default PedirTurno;
