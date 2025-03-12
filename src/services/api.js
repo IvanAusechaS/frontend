@@ -31,6 +31,13 @@ export const getTurnos = async (token) => {
   return response.data;
 };
 
+export const createTurno = async (turnoData, token) => {
+  const response = await axios.post(`${API_URL}turnos/`, turnoData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
 export const updateTurno = async (id, estado, token) => {
   const response = await axios.patch(`${API_URL}turnos/${id}/`, { estado }, {
     headers: { Authorization: `Bearer ${token}` }
@@ -65,10 +72,6 @@ export const getTickets = async () => {
     return response.data;
 };
 
-export const createTurno = async (turnoData) => {
-    const response = await axios.post(`${API_URL}turnos/`, turnoData);
-    return response.data;
-};
 export const buscarUsuarioPorCedula = async (cedula) => {
     const response = await axios.get(`${API_URL}buscar-usuario/${cedula}/`);
     return response.data;

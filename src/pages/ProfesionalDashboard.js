@@ -1,30 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { getPuntosAtencion, getTurnos } from '../services/api';
+import { getTurnos, updateTurno } from '../services/api';
 
 const ProfesionalDashboard = () => {
-  const [puntosAtencion, setPuntosAtencion] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTurnos = async () => {
       try {
         const token = localStorage.getItem('token');
-        const [puntosData, turnosData] = await Promise.all([
-          getPuntosAtencion(),
-          getTurnos(token)
-        ]);
-        setPuntosAtencion(puntosData);
-        setTurnos(turnosData);
+        const data = await getTurnos(token);
+        setTurnos(data);
         setLoading(false);
       } catch (err) {
-        setError('Error al cargar datos');
+        setError('Error al cargar turnos');
         setLoading(false);
       }
     };
-    fetchData();
+    fetchTurnos();
   }, []);
+
+  const handleEstadoChange = async (turnoId, nuevoEstado) => {
+    try {
+      const token = localStorage.getItem('token');
+      const updatedTurno = await updateTurno(turnoId, nuevoEstado, token);
+      setTurnos(turnos.map(turno =>
+        turno.id === turnoId ? { ...turno, estado: updatedTurno.estado, fecha_atencion: updatedTurno.fecha_atencion } : turno
+      ));
+    } catch (err) {
+      setError('Error al actualizar el turno');
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -33,27 +40,29 @@ const ProfesionalDashboard = () => {
       {error && <p style={styles.error}>{error}</p>}
       {!loading && !error && (
         <>
-          <h3>Puntos de Atención</h3>
-          <ul style={styles.list}>
-            {puntosAtencion.map((punto) => (
-              <li key={punto.id} style={styles.listItem}>
-                {punto.nombre} - {punto.ubicacion} (Servicios: {punto.servicios.join(', ')})
-              </li>
-            ))}
-          </ul>
-          <h3>Turnos Pendientes</h3>
+          <h3>Mis Turnos</h3>
           {turnos.length > 0 ? (
             <ul style={styles.list}>
               {turnos.map((turno) => (
                 <li key={turno.id} style={styles.listItem}>
-                  Turno: {turno.ticket.numero} | Paciente: {turno.ticket.usuario.nombre} | 
-                  Punto: {turno.punto_atencion.nombre} | Tipo: {turno.ticket.tipo_cita} | 
-                  Estado: {turno.estado} | Fecha: {new Date(turno.fecha_asignacion).toLocaleString()}
+                  Turno: {turno.numero} | Paciente: {turno.usuario.nombre} | 
+                  Tipo: {turno.tipo_cita} | Fecha: {new Date(turno.fecha_cita).toLocaleDateString()} | 
+                  Estado: 
+                  <select
+                    value={turno.estado}
+                    onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
+                    style={styles.select}
+                  >
+                    <option value="En espera">En espera</option>
+                    <option value="En progreso">En progreso</option>
+                    <option value="Atendido">Atendido</option>
+                    <option value="Cancelado">Cancelado</option>
+                  </select>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No hay turnos pendientes.</p>
+            <p>No hay turnos asignados.</p>
           )}
         </>
       )}
@@ -66,6 +75,7 @@ const styles = {
   error: { color: 'red' },
   list: { listStyle: 'none', padding: 0, textAlign: 'left' },
   listItem: { padding: '10px', borderBottom: '1px solid #ccc' },
+  select: { marginLeft: '10px', padding: '5px' },
 };
 
 export default ProfesionalDashboard;
