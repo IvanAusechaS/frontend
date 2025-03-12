@@ -8,14 +8,12 @@ export const loginUser = async (cedula, password) => {
 };
 
 export const logoutUser = async (token) => {
-  const response = await axios.post(`${API_URL}logout/`, {}, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
-};
-
-export const registerUser = async (cedula, email, nombre, telefono, password) => {
-  const response = await axios.post(`${API_URL}registrarse/`, { cedula, email, nombre, telefono, password });
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.post(`${API_URL}logout/`, {}, config); // Ajusta la URL según tu backend
   return response.data;
 };
 
@@ -24,24 +22,38 @@ export const getPuntosAtencion = async () => {
   return response.data;
 };
 
-export const getTurnos = async (token) => {
-  const response = await axios.get(`${API_URL}turnos/`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
-};
-
 export const createTurno = async (turnoData, token) => {
-  const response = await axios.post(`${API_URL}turnos/`, turnoData, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.post(`${API_URL}turnos/`, turnoData, config);
   return response.data;
 };
 
-export const updateTurno = async (id, estado, token) => {
-  const response = await axios.patch(`${API_URL}turnos/${id}/`, { estado }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+export const getTurnos = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.get(`${API_URL}turnos/`, config);
+  return response.data;
+};
+
+export const updateTurno = async (turnoId, estado, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.put(`${API_URL}turnos/${turnoId}/`, { estado }, config);
+  return response.data;
+};
+
+export const registerUser = async (cedula, email, nombre, telefono, password) => {
+  const response = await axios.post(`${API_URL}registrarse/`, { cedula, email, nombre, telefono, password });
   return response.data;
 };
 

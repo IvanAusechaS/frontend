@@ -9,15 +9,14 @@ import Login from './pages/Login';
 import ProfesionalDashboard from './pages/ProfesionalDashboard';
 import './App.css';
 
-function App() {
+const App = () => {
   const [user, setUser] = useState(null);
 
-  // Cargar usuario desde localStorage al iniciar la app
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      setUser(storedUser);
     }
   }, []);
 
