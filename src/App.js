@@ -1,18 +1,18 @@
+// frontend/src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import PedirTurno from './pages/PedirTurno';
-import Registrarse from './pages/Registrarse';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
+import PedirTurno from './pages/PedirTurno';
 import ProfesionalDashboard from './pages/ProfesionalDashboard';
-import './App.css';
+import Home from './pages/Home'; // Asumo que existe, si no, lo crearemos
+import Nav from './components/Nav';
+import Footer from './components/Footer';
 
 const App = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Cargar el usuario desde localStorage al iniciar la app
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
     if (storedUser && token) {
@@ -20,33 +20,22 @@ const App = () => {
     }
   }, []);
 
-  // Componente para proteger rutas que requieren autenticación
-  const ProtectedRoute = ({ element }) => {
-    return user && localStorage.getItem('token') ? element : <Navigate to="/login" />;
-  };
-
   return (
     <Router>
-      <div style={styles.app}>
-        <Header user={user} setUser={setUser} />
-        <main style={styles.main}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Nav user={user} setUser={setUser} />
+        <main style={{ flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/pedir-turno" element={<ProtectedRoute element={<PedirTurno user={user} />} />} />
-            <Route path="/registrarse" element={<Registrarse />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
-            <Route path="/profesional" element={<ProtectedRoute element={<ProfesionalDashboard />} />} />
+            <Route path="/pedir-turno" element={<PedirTurno user={user} setUser={setUser} />} />
+            <Route path="/profesional" element={<ProfesionalDashboard user={user} setUser={setUser} />} />
+            <Route path="/" element={<Home user={user} setUser={setUser} />} />
           </Routes>
         </main>
         <Footer />
       </div>
     </Router>
   );
-}
-
-const styles = {
-  app: { minHeight: '100vh', backgroundColor: '#F5F6F5', display: 'flex', flexDirection: 'column' },
-  main: { flex: 1, paddingBottom: '60px' },
 };
 
 export default App;

@@ -10,15 +10,13 @@ const Nav = ({ user, setUser }) => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-      const storedUser = JSON.parse(localStorage.getItem('user'));
       console.log('Token al intentar cerrar sesión:', token);
-      console.log('Usuario almacenado:', storedUser);
-      console.log('Usuario recibido como prop:', user);
-      if (!token) throw new Error('No hay token disponible en localStorage');
-      await logoutUser(token); // Llamada a la API (si aplica)
+      console.log('Usuario actual:', user);
+      if (!token) throw new Error('No hay token disponible');
+      await logoutUser(token); // Llamada a la API (si existe)
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      setUser(null);
+      setUser(null); // Actualiza el estado global
       console.log('Sesión cerrada exitosamente');
       setIsOpen(false);
       navigate('/login');
@@ -68,7 +66,7 @@ const Nav = ({ user, setUser }) => {
 
 const styles = {
   nav: {
-    backgroundColor: '#c850c3',
+    backgroundColor: '#50C878',
     padding: '15px 20px',
     width: '100%',
     position: 'fixed',
@@ -99,7 +97,7 @@ const styles = {
     color: '#FFFFFF',
     fontSize: 'clamp(1.5rem, 5vw, 2rem)',
     cursor: 'pointer',
-    display: 'block', // Visible para probar
+    display: 'block', // Visible para probar, ajustar con CSS externo para responsividad
   },
   menuClosed: {
     display: 'none',
@@ -110,7 +108,7 @@ const styles = {
     position: 'absolute',
     top: '60px',
     right: '20px',
-    backgroundColor: '#c850c3',
+    backgroundColor: '#50C878',
     padding: '10px',
     borderRadius: '5px',
     boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
