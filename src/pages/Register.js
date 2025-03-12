@@ -1,27 +1,33 @@
-// frontend/src/pages/Login.js
+// frontend/src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/api';
+import { registerUser } from '../services/api';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
-const Login = ({ setUser }) => {
+const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
+  const [nombre, setNombre] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
     try {
-      const data = await loginUser(cedula, password);
+      const data = await registerUser({ cedula, nombre, password });
       localStorage.setItem('token', data.access);
       localStorage.setItem('user', JSON.stringify({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional }));
       setUser({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional });
       navigate('/');
     } catch (err) {
-      setError('Credenciales inválidas');
-      console.error('Error de login:', err.response?.data || err.message);
+      setError('Error al registrarse. Verifica tus datos.');
+      console.error('Error de registro:', err.response?.data || err.message);
     }
   };
 
@@ -30,7 +36,7 @@ const Login = ({ setUser }) => {
       <Nav user={null} setUser={setUser} />
       <div style={styles.pageContainer}>
         <div style={styles.container}>
-          <h2 style={styles.title}>Iniciar Sesión</h2>
+          <h2 style={styles.title}>Registrarse</h2>
           {error && <p style={styles.error}>{error}</p>}
           <form onSubmit={handleSubmit} style={styles.form}>
             <input
@@ -39,6 +45,15 @@ const Login = ({ setUser }) => {
               value={cedula}
               onChange={(e) => setCedula(e.target.value)}
               style={styles.input}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              style={styles.input}
+              required
             />
             <input
               type="password"
@@ -46,14 +61,23 @@ const Login = ({ setUser }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={styles.input}
+              required
             />
-            <button type="submit" style={styles.button}>Iniciar Sesión</button>
+            <input
+              type="password"
+              placeholder="Confirmar Contraseña"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={styles.input}
+              required
+            />
+            <button type="submit" style={styles.button}>Registrarse</button>
           </form>
           <button
-            style={styles.registerButton}
-            onClick={() => navigate('/register')}
+            style={styles.loginButton}
+            onClick={() => navigate('/login')}
           >
-            Registrarse
+            ¿Ya tienes cuenta? Inicia sesión
           </button>
         </div>
       </div>
@@ -112,7 +136,7 @@ const styles = {
     margin: '0 auto',
     transition: 'background-color 0.3s',
   },
-  registerButton: {
+  loginButton: {
     padding: '10px',
     backgroundColor: '#FFFFFF',
     color: '#50C878',
@@ -134,4 +158,4 @@ const styles = {
   },
 };
 
-export default Login;
+export default Register;

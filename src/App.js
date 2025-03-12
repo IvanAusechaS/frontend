@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
 import PedirTurno from './pages/PedirTurno';
 import ProfesionalDashboard from './pages/ProfesionalDashboard';
-import Home from './pages/Home'; // Asumo que existe, si no, lo crearemos
+import Home from './pages/Home';
+import Register from './pages/Register'; // Nueva importación
 import Nav from './components/Nav';
 import Footer from './components/Footer';
 
@@ -12,7 +13,6 @@ const App = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Cargar el usuario desde localStorage al iniciar la app
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
     if (storedUser && token) {
@@ -29,6 +29,7 @@ const App = () => {
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/pedir-turno" element={<PedirTurno user={user} setUser={setUser} />} />
             <Route path="/profesional" element={<ProfesionalDashboard user={user} setUser={setUser} />} />
+            <Route path="/register" element={<Register setUser={setUser} />} /> {/* Nueva ruta */}
             <Route path="/" element={<Home user={user} setUser={setUser} />} />
           </Routes>
         </main>

@@ -17,6 +17,11 @@ export const logoutUser = async (token) => {
   return response.data;
 };
 
+export const registerUser = async (userData) => {
+  const response = await axios.post(`${API_URL}register/`, userData);
+  return response.data;
+};
+
 export const getPuntosAtencion = async () => {
   const response = await axios.get(`${API_URL}puntos-atencion/`);
   return response.data;
@@ -49,11 +54,6 @@ export const updateTurno = async (turnoId, estado, token) => {
     },
   };
   const response = await axios.put(`${API_URL}turnos/${turnoId}/`, { estado }, config);
-  return response.data;
-};
-
-export const registerUser = async (cedula, email, nombre, telefono, password) => {
-  const response = await axios.post(`${API_URL}registrarse/`, { cedula, email, nombre, telefono, password });
   return response.data;
 };
 
