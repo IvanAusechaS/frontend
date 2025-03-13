@@ -7,14 +7,9 @@ export const loginUser = async (cedula, password) => {
   return response.data;
 };
 
-export const logoutUser = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const response = await axios.post(`${API_URL}logout/`, {}, config); // Ajusta la URL según tu backend
-  return response.data;
+export const logoutUser = async () => {
+  console.log('Cerrando sesión solo en el frontend');
+  return Promise.resolve({ message: 'Sesión cerrada' });
 };
 
 export const registerUser = async (userData) => {
@@ -53,7 +48,7 @@ export const updateTurno = async (turnoId, estado, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.put(`${API_URL}turnos/${turnoId}/`, { estado }, config);
+  const response = await axios.patch(`${API_URL}turnos/${turnoId}/`, { estado }, config); // Cambiar a PATCH
   return response.data;
 };
 

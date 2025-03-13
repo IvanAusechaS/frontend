@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getTurnos, updateTurno } from '../services/api';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
+import './ProfesionalDashboard.css'; // Nuevo archivo CSS
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
@@ -33,114 +34,66 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
         turno.id === turnoId ? { ...turno, estado: updatedTurno.estado, fecha_atencion: updatedTurno.fecha_atencion } : turno
       ));
     } catch (err) {
-      setError('Error al actualizar el turno');
+      console.error('Error al actualizar el turno:', err.response?.data || err.message);
+      setError(`Error al actualizar el turno: ${err.response?.data?.detail || err.message}`);
     }
   };
 
   return (
     <>
       <Nav user={user} setUser={setUser} />
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          <h2 style={styles.title}>Dashboard Profesional</h2>
-          {loading && <p style={styles.text}>Cargando...</p>}
-          {error && <p style={styles.error}>{error}</p>}
-          {!loading && !error && (
-            <>
-              <h3 style={styles.subtitle}>Mis Turnos</h3>
-              {turnos.length > 0 ? (
-                <ul style={styles.list}>
+      <div className="dashboard-container">
+        <h2 className="dashboard-title">Dashboard Profesional</h2>
+        {loading && <p className="dashboard-text">Cargando...</p>}
+        {error && <p className="dashboard-error">{error}</p>}
+        {!loading && !error && (
+          <div className="turnos-table-wrapper">
+            <h3 className="dashboard-subtitle">Mis Turnos</h3>
+            {turnos.length > 0 ? (
+              <table className="turnos-table">
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Paciente</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {turnos.map((turno) => (
-                    <li key={turno.id} style={styles.listItem}>
-                      Turno: {turno.numero} | Paciente: {turno.usuario.nombre} | 
-                      Tipo: {turno.tipo_cita} | Fecha: {new Date(turno.fecha_cita).toLocaleDateString()} | 
-                      Estado: 
-                      <select
-                        value={turno.estado}
-                        onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
-                        style={styles.select}
-                      >
-                        <option value="En espera">En espera</option>
-                        <option value="En progreso">En progreso</option>
-                        <option value="Atendido">Atendido</option>
-                        <option value="Cancelado">Cancelado</option>
-                      </select>
-                    </li>
+                    <tr key={turno.id} className={`turno-row estado-${turno.estado.toLowerCase().replace(' ', '-')}`}>
+                      <td>{turno.numero}</td>
+                      <td>{turno.usuario.nombre}</td>
+                      <td>{turno.tipo_cita}</td>
+                      <td>{new Date(turno.fecha_cita).toLocaleDateString()}</td>
+                      <td>{turno.estado}</td>
+                      <td>
+                        <select
+                          value={turno.estado}
+                          onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
+                          className="estado-select"
+                        >
+                          <option value="En espera">En espera</option>
+                          <option value="En progreso">En progreso</option>
+                          <option value="Atendido">Atendido</option>
+                          <option value="Cancelado">Cancelado</option>
+                        </select>
+                      </td>
+                    </tr>
                   ))}
-                </ul>
-              ) : (
-                <p style={styles.text}>No hay turnos asignados.</p>
-              )}
-            </>
-          )}
-        </div>
+                </tbody>
+              </table>
+            ) : (
+              <p className="dashboard-text">No hay turnos asignados.</p>
+            )}
+          </div>
+        )}
       </div>
       <Footer />
     </>
   );
-};
-
-const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    paddingTop: '80px', // Más espacio para evitar superposición con el nav
-    paddingBottom: '60px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    boxSizing: 'border-box',
-  },
-  container: {
-    padding: '20px',
-    maxWidth: '800px',
-    width: '100%',
-    margin: '0 auto',
-    boxSizing: 'border-box',
-  },
-  title: {
-    fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-    textAlign: 'center',
-    marginBottom: '20px',
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
-    textAlign: 'center',
-    marginBottom: '15px',
-    color: '#333',
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    marginBottom: '15px',
-  },
-  text: {
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    textAlign: 'center',
-    color: '#666',
-  },
-  list: {
-    listStyle: 'none',
-    padding: 0,
-    width: '100%',
-    textAlign: 'left',
-  },
-  listItem: {
-    padding: '10px',
-    borderBottom: '1px solid #ccc',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '10px',
-    alignItems: 'center',
-  },
-  select: {
-    padding: '5px',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
 };
 
 export default ProfesionalDashboard;
