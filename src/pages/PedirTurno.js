@@ -11,6 +11,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [selectedPunto, setSelectedPunto] = useState(null);
   const [tipoCita, setTipoCita] = useState('medica');
   const [fechaCita, setFechaCita] = useState('');
+  const [horaCita, setHoraCita] = useState('08:00');
   const [prioridad, setPrioridad] = useState('N');
   const [descripcion, setDescripcion] = useState('');
   const [error, setError] = useState('');
@@ -22,10 +23,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
     const fetchPuntos = async () => {
       try {
         const data = await getPuntosAtencion();
-        setPuntosAtencion(data.filter(p => p.profesional));
-        setPuntoAtencionId(data.find(p => p.profesional)?.id || '');
+        console.log('Puntos de atención recibidos:', data);
+        const puntosConProfesional = data.filter(p => p.profesional);
+        setPuntosAtencion(puntosConProfesional);
+        if (puntosConProfesional.length > 0) {
+          setPuntoAtencionId(puntosConProfesional[0].id.toString());
+        } else {
+          setError('No hay puntos de atención disponibles con profesionales');
+        }
       } catch (err) {
         setError('Error al cargar puntos de atención');
+        console.error('Error fetching puntos:', err);
       }
     };
     fetchPuntos();
@@ -42,17 +50,20 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No hay token de autenticación');
       if (!user.id) throw new Error('No se encontró el ID del usuario');
+      if (!puntoAtencionId || puntoAtencionId === '') throw new Error('Debe seleccionar un punto de atención');
+  
+      // Construir la fecha con zona horaria UTC-5 (Colombia)
+      const fechaCitaCompleta = `${fechaCita}T${horaCita}:00-05:00`; // Ej. "2025-03-13T09:00:00-05:00"
       const turnoData = {
         usuario_id: user.id,
-        punto_atencion_id: puntoAtencionId,
+        punto_atencion_id: parseInt(puntoAtencionId),
         tipo_cita: tipoCita,
         prioridad,
         descripcion,
-        fecha_cita: fechaCita
+        fecha_cita: fechaCitaCompleta,
       };
-      console.log('Datos enviados:', turnoData);
-      const response = await createTurno(turnoData, token);
-      console.log('Respuesta del backend:', response);
+      console.log('Datos enviados al backend:', turnoData);
+      await createTurno(turnoData, token);
       alert('Turno solicitado exitosamente');
       navigate('/');
     } catch (err) {
@@ -60,6 +71,11 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setError(`Error al crear el turno: ${err.response ? JSON.stringify(err.response.data) : err.message}`);
     }
   };
+
+  const horasDisponibles = [
+    '08:00', '09:00', '10:00', '11:00',
+    '14:00', '15:00',
+  ];
 
   return (
     <>
@@ -79,7 +95,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
               <option value="">Seleccione un punto</option>
               {puntosAtencion.map((punto) => (
                 <option key={punto.id} value={punto.id}>
-                  {punto.nombre} - {punto.profesional ? punto.profesional.nombre : 'Sin profesional'}
+                  {punto.nombre} - {punto.profesional ? punto.profesional : 'Sin profesional'}
                 </option>
               ))}
             </select>
@@ -104,6 +120,18 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                   style={styles.input}
                   required
                 />
+
+                <label style={styles.label}>Hora de la Cita:</label>
+                <select
+                  value={horaCita}
+                  onChange={(e) => setHoraCita(e.target.value)}
+                  style={styles.input}
+                  required
+                >
+                  {horasDisponibles.map(hora => (
+                    <option key={hora} value={hora}>{hora}</option>
+                  ))}
+                </select>
 
                 <label style={styles.label}>Prioridad:</label>
                 <select value={prioridad} onChange={(e) => setPrioridad(e.target.value)} style={styles.input}>
@@ -133,7 +161,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
 const styles = {
   pageContainer: {
     minHeight: '100vh',
-    paddingTop: '80px', // Más espacio para evitar superposición con el nav
+    paddingTop: '80px',
     paddingBottom: '60px',
     display: 'flex',
     flexDirection: 'column',

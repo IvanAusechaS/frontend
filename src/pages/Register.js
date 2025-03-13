@@ -13,10 +13,25 @@ const Register = ({ setUser }) => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const handleNombreChange = (e) => {
+    const value = e.target.value;
+    // Solo letras y espacios
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setNombre(value);
+      setError('');
+    } else {
+      setError('El nombre solo debe contener letras y espacios');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
+      return;
+    }
+    if (!nombre.trim().includes(' ')) {
+      setError('Debes ingresar nombres y apellidos');
       return;
     }
     try {
@@ -49,9 +64,9 @@ const Register = ({ setUser }) => {
             />
             <input
               type="text"
-              placeholder="Nombre"
+              placeholder="Nombres y Apellidos"
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={handleNombreChange}
               style={styles.input}
               required
             />

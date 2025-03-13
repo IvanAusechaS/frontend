@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getTurnos, updateTurno } from '../services/api';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
-import './ProfesionalDashboard.css'; // Nuevo archivo CSS
+import './ProfesionalDashboard.css';
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
@@ -57,6 +57,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                     <th>Paciente</th>
                     <th>Tipo</th>
                     <th>Fecha</th>
+                    <th>Hora</th>
                     <th>Estado</th>
                     <th>Acción</th>
                   </tr>
@@ -64,12 +65,13 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                 <tbody>
                   {turnos.map((turno) => (
                     <tr key={turno.id} className={`turno-row estado-${turno.estado.toLowerCase().replace(' ', '-')}`}>
-                      <td>{turno.numero}</td>
-                      <td>{turno.usuario.nombre}</td>
-                      <td>{turno.tipo_cita}</td>
-                      <td>{new Date(turno.fecha_cita).toLocaleDateString()}</td>
-                      <td>{turno.estado}</td>
-                      <td>
+                      <td data-label="Número">{turno.numero}</td>
+                      <td data-label="Paciente">{turno.usuario}</td> {/* Cambiado a turno.usuario porque es string */}
+                      <td data-label="Tipo">{turno.tipo_cita}</td>
+                      <td data-label="Fecha">{new Date(turno.fecha_cita).toLocaleDateString()}</td>
+                      <td data-label="Hora">{new Date(turno.fecha_cita).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td data-label="Estado">{turno.estado}</td>
+                      <td data-label="Acción">
                         <select
                           value={turno.estado}
                           onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
