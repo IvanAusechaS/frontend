@@ -8,6 +8,8 @@ import Home from './pages/Home';
 import Register from './pages/Register'; // Nueva importación
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import CompleteProfile from './pages/CompleteProfile';
+import ChangePassword from './pages/ChangePassword';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -31,6 +33,8 @@ const App = () => {
             <Route path="/profesional" element={<ProfesionalDashboard user={user} setUser={setUser} />} />
             <Route path="/register" element={<Register setUser={setUser} />} /> {/* Nueva ruta */}
             <Route path="/" element={<Home user={user} setUser={setUser} />} />
+            <Route path="/complete-profile" element={<CompleteProfile setUser={setUser} />} />
+            <Route path="/change-password" element={<ChangePassword />} />
           </Routes>
         </main>
         <Footer />

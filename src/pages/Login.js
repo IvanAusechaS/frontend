@@ -1,136 +1,92 @@
 // frontend/src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/api';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:8000/api/';
 
 const Login = ({ setUser }) => {
-  const [cedula, setCedula] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
     try {
-      const data = await loginUser(cedula, password);
-      localStorage.setItem('token', data.access);
-      localStorage.setItem('user', JSON.stringify({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional }));
-      setUser({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional });
-      navigate('/');
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const response = await axios.post(`${API_URL}firebase-login/`, { id_token: idToken });
+      const { access, refresh, user: backendUser } = response.data;
+
+      localStorage.setItem('token', access);
+      localStorage.setItem('refreshToken', refresh);
+      localStorage.setItem('user', JSON.stringify(backendUser));
+      setUser(backendUser);
+
+      if (backendUser.needs_cedula) {
+        navigate('/complete-profile'); // Redirigir a completar cédula
+      } else {
+        navigate('/');
+      }
     } catch (err) {
-      setError('Credenciales inválidas');
-      console.error('Error de login:', err.response?.data || err.message);
+      setError('Error al iniciar sesión con Google');
+      console.error(err);
     }
   };
 
+  const handleRegisterRedirect = () => {
+    navigate('/register');
+  };
+
   return (
-    <>
-      <Nav user={null} setUser={setUser} />
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          <h2 style={styles.title}>Iniciar Sesión</h2>
-          {error && <p style={styles.error}>{error}</p>}
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <input
-              type="text"
-              placeholder="Cédula"
-              value={cedula}
-              onChange={(e) => setCedula(e.target.value)}
-              style={styles.input}
-            />
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-            />
-            <button type="submit" style={styles.button}>Iniciar Sesión</button>
-          </form>
-          <button
-            style={styles.registerButton}
-            onClick={() => navigate('/register')}
-          >
-            Registrarse
-          </button>
-        </div>
-      </div>
-      <Footer />
-    </>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Iniciar Sesión</h2>
+      {error && <p style={styles.error}>{error}</p>}
+      <button onClick={handleGoogleLogin} style={styles.googleButton}>
+        Iniciar sesión con Google
+      </button>
+      <button onClick={handleRegisterRedirect} style={styles.registerButton}>
+        Registrarse
+      </button>
+    </div>
   );
 };
 
 const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    paddingTop: '80px',
-    paddingBottom: '60px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    boxSizing: 'border-box',
-  },
   container: {
-    padding: '20px',
     maxWidth: '400px',
-    width: '100%',
-    margin: '0 auto',
-    boxSizing: 'border-box',
+    margin: '100px auto',
+    padding: '20px',
+    textAlign: 'center',
   },
   title: {
-    fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-    textAlign: 'center',
+    fontSize: '2rem',
     marginBottom: '20px',
-    color: '#333',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    width: '100%',
-  },
-  input: {
-    padding: '10px',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  button: {
-    padding: '10px',
-    backgroundColor: '#50C878',
-    color: '#FFFFFF',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    width: '100%',
-    maxWidth: '200px',
-    margin: '0 auto',
-    transition: 'background-color 0.3s',
-  },
-  registerButton: {
-    padding: '10px',
-    backgroundColor: '#FFFFFF',
-    color: '#50C878',
-    border: '1px solid #50C878',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    width: '100%',
-    maxWidth: '200px',
-    margin: '15px auto 0',
-    display: 'block',
-    transition: 'background-color 0.3s',
   },
   error: {
     color: 'red',
-    textAlign: 'center',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    marginBottom: '15px',
+    marginBottom: '10px',
+  },
+  googleButton: {
+    padding: '10px 20px',
+    fontSize: '1rem',
+    backgroundColor: '#4285f4',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    marginBottom: '10px',
+  },
+  registerButton: {
+    padding: '10px 20px',
+    fontSize: '1rem',
+    backgroundColor: '#50C878',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
   },
 };
 
