@@ -1,0 +1,111 @@
+/* frontend/src/pages/AppointmentHistory.css */
+.appointment-history-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-history-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.appointment-history-error {
+  color: #d32f2f;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.appointment-history-success {
+  color: #388e3c;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.appointment-history-empty {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Filtros */
+.filters-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.filter-group select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Tabla */
+.appointment-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.table-header, .table-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr; /* Ajusta según necesidades */
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-header {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.table-row {
+  background-color: #fafafa;
+  transition: background-color 0.2s;
+}
+
+.table-row:hover {
+  background-color: #f0f0f0;
+}
+
+.table-row span {
+  padding: 8px;
+  text-align: center;
+}
+
+.cancel-button {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.cancel-button:hover {
+  background-color: #cc0000;
+}

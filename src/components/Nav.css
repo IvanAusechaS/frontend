@@ -1,91 +1,137 @@
 /* frontend/src/components/Nav.css */
 .nav {
-    background-color: #50c878;
-    padding: 15px 20px;
-    width: 100%;
-    position: fixed;
-    top: 0;
+  background-color: #0077b6; /* Azul intenso */
+  padding: 15px 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nav-logo {
+  color: #caf0f8; /* Azul muy claro */
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0;
+  transition: color 0.3s;
+}
+
+.nav-logo:hover {
+  color: #90e0ef; /* Azul vibrante */
+}
+
+.nav-menu-button {
+  display: none; /* Oculto en escritorio */
+  background: none;
+  border: none;
+  color: #caf0f8; /* Azul muy claro */
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.nav-menu-item {
+  background: none;
+  border: none;
+  color: #caf0f8; /* Azul claro */
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.nav-menu-item:hover {
+  color: #90e0ef; /* Azul vibrante */
+}
+
+.nav-user-container {
+  position: relative;
+}
+
+.nav-user {
+  color: #caf0f8; /* Azul muy claro */
+}
+
+.nav-profile-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #caf0f8; /* Fondo claro */
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.nav-profile-info {
+  color: #03045e; /* Texto oscuro */
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.nav-profile-info p {
+  margin: 5px 0;
+}
+
+.nav-profile-item {
+  background: none;
+  border: none;
+  color: #0077b6; /* Color principal */
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  padding: 5px 0;
+  transition: color 0.3s;
+}
+
+.nav-profile-item:hover {
+  color: #90e0ef; /* Azul vibrante */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-menu-button {
+    display: block;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
     left: 0;
-    z-index: 1000;
-    box-sizing: border-box;
-    height: 60px;
+    right: 0;
+    background-color: #0077b6; /* Azul intenso */
+    padding: 20px;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
   }
-  
-  .nav-container {
+
+  .nav-menu.open {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
+  }
+
+  .nav-menu-item {
+    font-size: 1.2rem;
+    padding: 10px 0;
+  }
+
+  .nav-profile-menu {
+    position: static;
     width: 100%;
-    margin: 0 auto;
-    height: 100%;
+    background-color: #caf0f8;
+    box-shadow: none;
+    padding: 10px 0;
   }
-  
-  .logo {
-    color: #ffffff;
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
-    margin: 0;
-    cursor: pointer;
-  }
-  
-  .menu-button {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: clamp(1.5rem, 5vw, 2rem);
-    cursor: pointer;
-    display: none; /* Oculto por defecto, se mostrará en móviles */
-  }
-  
-  .menu {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: center;
-  }
-  
-  .menu-item {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: clamp(0.9rem, 3vw, 1rem);
-    padding: 10px;
-    text-align: left;
-    cursor: pointer;
-  }
-  
-  /* Media query para tablets y móviles (≤ 768px) */
-  @media (max-width: 768px) {
-    .menu-button {
-      display: block; /* Botón hamburguesa visible */
-    }
-  
-    .menu {
-      display: none; /* Menú oculto por defecto */
-      flex-direction: column;
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      background-color: #50c878;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      width: 200px;
-      z-index: 999;
-    }
-  
-    .menu.open {
-      display: flex; /* Menú visible cuando está abierto */
-    }
-  
-    .menu-item {
-      width: 100%;
-    }
-  }
-  
-  /* Pantallas grandes (> 768px) */
-  @media (min-width: 769px) {
-    .menu {
-      display: flex; /* Menú siempre visible en línea */
-    }
-  }
+}

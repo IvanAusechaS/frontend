@@ -1,12 +1,17 @@
 // frontend/src/components/Nav.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logoutUser } from '../services/api';
-import './Nav.css'; // Importamos el CSS
+import './Nav.css';
 
 const Nav = ({ user, setUser }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Menú principal
+  const [isProfileOpen, setIsProfileOpen] = useState(false); // Submenú del perfil
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('Nav renderizado con user:', user);
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -14,12 +19,14 @@ const Nav = ({ user, setUser }) => {
       console.log('Token al intentar cerrar sesión:', token);
       console.log('Usuario actual:', user);
       if (!token) throw new Error('No hay token disponible');
-      await logoutUser(token);
+      await logoutUser();
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       setUser(null);
       console.log('Sesión cerrada exitosamente');
       setIsOpen(false);
+      setIsProfileOpen(false);
       navigate('/login');
     } catch (err) {
       console.error('Error al cerrar sesión:', err.message || err);
@@ -27,35 +34,98 @@ const Nav = ({ user, setUser }) => {
     }
   };
 
+  const safeUserName = user && typeof user === 'object' ? user.nombre || 'Usuario' : 'Usuario';
+
+  const toggleProfileMenu = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
+
   return (
     <nav className="nav">
       <div className="nav-container">
-        <h1 className="logo" onClick={() => navigate('/')}>Sistema de Turnos</h1>
-        <button className="menu-button" onClick={() => setIsOpen(!isOpen)}>
+        <h1 className="nav-logo" onClick={() => navigate('/')}>
+          Sistema de Turnos
+        </h1>
+        <button className="nav-menu-button" onClick={() => setIsOpen(!isOpen)}>
           ☰
         </button>
-        <div className={`menu ${isOpen ? 'open' : ''}`}>
+        <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
           {user ? (
             <>
-              <span className="menu-item">Hola, {user.nombre}</span>
+              <button
+                className="nav-menu-item"
+                onClick={() => {
+                  navigate('/');
+                  setIsOpen(false);
+                }}
+              >
+                Inicio
+              </button>
               {user.es_profesional ? (
-                <button className="menu-item" onClick={() => { navigate('/profesional'); setIsOpen(false); }}>
+                <button
+                  className="nav-menu-item"
+                  onClick={() => {
+                    navigate('/profesional');
+                    setIsOpen(false);
+                  }}
+                >
                   Dashboard
                 </button>
               ) : (
-                <button className="menu-item" onClick={() => { navigate('/pedir-turno'); setIsOpen(false); }}>
+                <button
+                  className="nav-menu-item"
+                  onClick={() => {
+                    navigate('/pedir-turno');
+                    setIsOpen(false);
+                  }}
+                >
                   Pedir Turno
                 </button>
               )}
-              <button className="menu-item" onClick={() => { navigate('/'); setIsOpen(false); }}>
-                Inicio
-              </button>
-              <button className="menu-item" onClick={handleLogout}>
+              <div className="nav-user-container">
+                <span
+                  className="nav-menu-item nav-user"
+                  onClick={toggleProfileMenu}
+                >
+                  Hola, {safeUserName} ▼
+                </span>
+                {isProfileOpen && (
+                  <div className="nav-profile-menu">
+                    <button
+                      className="nav-profile-item"
+                      onClick={() => {
+                        navigate('/profile');
+                        setIsOpen(false);
+                        setIsProfileOpen(false);
+                      }}
+                    >
+                      Perfil
+                    </button>
+                    <button
+                      className="nav-profile-item"
+                      onClick={() => {
+                        navigate('/appointment-history');
+                        setIsOpen(false);
+                        setIsProfileOpen(false);
+                      }}
+                    >
+                      Mis Citas
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button className="nav-menu-item" onClick={handleLogout}>
                 Cerrar Sesión
               </button>
             </>
           ) : (
-            <button className="menu-item" onClick={() => { navigate('/login'); setIsOpen(false); }}>
+            <button
+              className="nav-menu-item"
+              onClick={() => {
+                navigate('/login');
+                setIsOpen(false);
+              }}
+            >
               Iniciar Sesión
             </button>
           )}

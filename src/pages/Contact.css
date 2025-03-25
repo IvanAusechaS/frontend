@@ -1,0 +1,73 @@
+/* frontend/src/pages/Contact.css */
+.contact-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f8f1e9; /* Color hueso */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .contact-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .contact-success {
+    color: #50c878;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  
+  .contact-error {
+    color: #ff4d4f;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .contact-input,
+  .contact-textarea {
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .contact-input:focus,
+  .contact-textarea:focus {
+    border-color: #50c878;
+  }
+  
+  .contact-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .contact-button {
+    padding: 12px;
+    font-size: 1rem;
+    background-color: #00b4d8;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .contact-button:hover {
+    background-color: #0077b6;
+  }
+  
+  .contact-button:active {
+    background-color: #004a72;
+  }

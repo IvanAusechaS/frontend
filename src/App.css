@@ -1,19 +1,10 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+/* frontend/src/App.css */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-/* Estilos del Nav */
-nav a:hover {
-  background-color: #860089; /* Azul más oscuro al pasar el ratón */
-}
-
-/* Contenedores generales */
-h2 {
-  color: #333333;
-}
-
-p {
-  color: #333333;
-  font-size: 1.1em;
+.main-content {
+  flex: 1;
 }

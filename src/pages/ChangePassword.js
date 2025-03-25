@@ -1,45 +1,46 @@
 // frontend/src/pages/ChangePassword.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
+import './ChangePassword.css';
 
-const API_URL = 'http://localhost:8000/api/';
-
-const ChangePassword = () => {
+const ChangePassword = ({ user, setUser }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+
+  console.log('Usuario en ChangePassword:', user); // Depuración
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${API_URL}change-password/`,
-        { current_password: currentPassword, new_password: newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await api.post('change-password/', {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
       setMessage(response.data.message);
-      setTimeout(() => navigate('/'), 2000); // Redirigir tras 2 segundos
+      setError('');
+      setTimeout(() => navigate('/'), 2000); // Redirige a home tras 2 segundos
     } catch (err) {
       setError(err.response?.data?.error || 'Error al cambiar la contraseña');
+      setMessage('');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Cambiar Contraseña</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      {message && <p style={styles.success}>{message}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="change-password-container">
+      <h2 className="change-password-title">Cambiar Contraseña</h2>
+      {message && <p className="change-password-success">{message}</p>}
+      {error && <p className="change-password-error">{error}</p>}
+      <form onSubmit={handleSubmit} className="change-password-form">
         <input
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           placeholder="Contraseña actual"
-          style={styles.input}
+          className="change-password-input"
           required
         />
         <input
@@ -47,49 +48,13 @@ const ChangePassword = () => {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="Nueva contraseña"
-          style={styles.input}
+          className="change-password-input"
           required
         />
-        <button type="submit" style={styles.button}>Cambiar</button>
+        <button type="submit" className="change-password-button">Cambiar</button>
       </form>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '400px',
-    margin: '100px auto',
-    padding: '20px',
-    textAlign: 'center',
-  },
-  title: {
-    fontSize: '2rem',
-    marginBottom: '20px',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px',
-  },
-  success: {
-    color: 'green',
-    marginBottom: '10px',
-  },
-  input: {
-    padding: '10px',
-    width: '100%',
-    marginBottom: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px 20px',
-    backgroundColor: '#50C878',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default ChangePassword;

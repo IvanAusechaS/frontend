@@ -1,0 +1,5 @@
+/* frontend/src/components/Header.css */
+.header {
+    background-color: #03045e; /* Azul intenso */
+    padding: 0; /* El padding está en Nav */
+  }

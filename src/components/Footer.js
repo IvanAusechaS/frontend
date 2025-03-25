@@ -1,29 +1,21 @@
 // frontend/src/components/Footer.js
 import React from 'react';
+import { Link } from 'react-router-dom';
+import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer style={styles.footer}>
-      <p style={styles.text}>
+    <footer className="footer">
+      <p className="footer-text">
         © {new Date().getFullYear()} Sistema de Turnos - Todos los derechos reservados
       </p>
+      <div className="footer-links">
+        <span className="footer-link">Política de Privacidad</span>
+        <span className="footer-link">Términos de Servicio</span>
+        <Link to="/contact" className="footer-link">Contacto</Link>
+      </div>
     </footer>
   );
-};
-
-const styles = {
-  footer: {
-    backgroundColor: '#444', // Gris oscuro en lugar de negro puro para mejor contraste
-    color: '#FFFFFF',
-    padding: '20px',
-    textAlign: 'center',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  text: {
-    margin: 0,
-    fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
-  },
 };
 
 export default Footer;

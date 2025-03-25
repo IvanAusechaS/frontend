@@ -1,243 +1,154 @@
 // frontend/src/pages/PedirTurno.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPuntosAtencion, createTurno } from '../services/api';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
+import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../services/api';
+import './PedirTurno.css';
 
 const PedirTurno = ({ user: userProp, setUser }) => {
-  const [puntosAtencion, setPuntosAtencion] = useState([]);
-  const [puntoAtencionId, setPuntoAtencionId] = useState('');
-  const [selectedPunto, setSelectedPunto] = useState(null);
-  const [tipoCita, setTipoCita] = useState('medica');
-  const [fechaCita, setFechaCita] = useState('');
-  const [horaCita, setHoraCita] = useState('08:00');
-  const [prioridad, setPrioridad] = useState('N');
-  const [descripcion, setDescripcion] = useState('');
+  const [currentTurnos, setCurrentTurnos] = useState({ melendez: 'Ninguno', polvorines: 'Ninguno' });
+  const [estimatedTime, setEstimatedTime] = useState({ melendez: 0, polvorines: 0 });
+  const [puntosServicios, setPuntosServicios] = useState({});
+  const [selectedPunto, setSelectedPunto] = useState('');
+  const [tipoCita, setTipoCita] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
   useEffect(() => {
-    const fetchPuntos = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getPuntosAtencion();
-        console.log('Puntos de atención recibidos:', data);
-        const puntosConProfesional = data.filter(p => p.profesional);
-        setPuntosAtencion(puntosConProfesional);
-        if (puntosConProfesional.length > 0) {
-          setPuntoAtencionId(puntosConProfesional[0].id.toString());
-        } else {
-          setError('No hay puntos de atención disponibles con profesionales');
+        const token = localStorage.getItem('token');
+        if (!token || !user.id) {
+          setError('Debes iniciar sesión para pedir un turno.');
+          navigate('/login');
+          return;
         }
+        const turnosData = await getCurrentTurnos();
+        setCurrentTurnos({
+          melendez: turnosData.melendez,
+          polvorines: turnosData.polvorines,
+        });
+        setEstimatedTime({
+          melendez: turnosData.melendezTime,
+          polvorines: turnosData.polvorinesTime,
+        });
+
+        const puntosData = await getPuntosAtencionServices();
+        setPuntosServicios(puntosData);
+        setSelectedPunto(Object.keys(puntosData)[0] || ''); // Selecciona el primer punto por defecto
       } catch (err) {
-        setError('Error al cargar puntos de atención');
-        console.error('Error fetching puntos:', err);
+        setError('Error al cargar datos: ' + (err.response?.data?.detail || err.message));
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          setUser(null);
+          navigate('/login');
+        }
       }
     };
-    fetchPuntos();
-  }, []);
+    fetchData();
+    const interval = setInterval(() => fetchData(), 30000); // Actualiza cada 30 segundos
+    return () => clearInterval(interval);
+  }, [navigate, setUser, user.id]);
 
-  useEffect(() => {
-    const punto = puntosAtencion.find(p => p.id === parseInt(puntoAtencionId));
-    setSelectedPunto(punto || null);
-  }, [puntoAtencionId, puntosAtencion]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleRequestTurno = async () => {
+    if (!selectedPunto) {
+      setError('Por favor, selecciona un punto de atención.');
+      return;
+    }
+    if (!tipoCita) {
+      setError('Por favor, selecciona un tipo de servicio.');
+      return;
+    }
+    setError('');
+    setSuccess('');
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No hay token de autenticación');
-      if (!user.id) throw new Error('No se encontró el ID del usuario');
-      if (!puntoAtencionId || puntoAtencionId === '') throw new Error('Debe seleccionar un punto de atención');
-  
-      // Construir la fecha con zona horaria UTC-5 (Colombia)
-      const fechaCitaCompleta = `${fechaCita}T${horaCita}:00-05:00`; // Ej. "2025-03-13T09:00:00-05:00"
       const turnoData = {
-        usuario_id: user.id,
-        punto_atencion_id: parseInt(puntoAtencionId),
+        punto_atencion: parseInt(selectedPunto),  // ID del punto
         tipo_cita: tipoCita,
-        prioridad,
-        descripcion,
-        fecha_cita: fechaCitaCompleta,
       };
-      console.log('Datos enviados al backend:', turnoData);
-      await createTurno(turnoData, token);
-      alert('Turno solicitado exitosamente');
-      navigate('/');
+      const newTurno = await createTurno(turnoData);
+      const puntoNombre = puntosServicios[selectedPunto].nombre;
+      setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
+      setTipoCita('');
+      setTimeout(() => navigate('/appointment-history'), 2000);
     } catch (err) {
-      console.error('Error completo:', err.response ? err.response.data : err.message);
-      setError(`Error al crear el turno: ${err.response ? JSON.stringify(err.response.data) : err.message}`);
+      setError('Error al solicitar turno: ' + (err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message));
     }
   };
-
-  const horasDisponibles = [
-    '08:00', '09:00', '10:00', '11:00',
-    '14:00', '15:00',
-  ];
-
+  
   return (
-    <>
-      <Nav user={user} setUser={setUser} />
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          <h2 style={styles.title}>Pedir Turno</h2>
-          {error && <p style={styles.error}>{error}</p>}
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <label style={styles.label}>Punto de Atención:</label>
-            <select
-              value={puntoAtencionId}
-              onChange={(e) => setPuntoAtencionId(e.target.value)}
-              style={styles.input}
-              required
+    <div className="pedir-turno-page">
+      <div className="pedir-turno-container">
+        <h2 className="pedir-turno-title">Solicitar Turno - Día Actual</h2>
+        {error && <p className="pedir-turno-error">{error}</p>}
+        {success && <p className="pedir-turno-success">{success}</p>}
+
+        {/* Selector de Punto de Atención */}
+        <div className="punto-selector">
+          <label className="pedir-turno-label">Punto de Atención:</label>
+          <select
+            value={selectedPunto}
+            onChange={(e) => {
+              setSelectedPunto(e.target.value);
+              setTipoCita(''); // Resetear servicio al cambiar punto
+            }}
+            className="pedir-turno-input"
+          >
+            <option value="">Selecciona un punto</option>
+            {Object.entries(puntosServicios).map(([id, punto]) => (
+              <option key={id} value={id}>{punto.nombre}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Turnos Actuales y Servicios */}
+        {selectedPunto && (
+          <>
+            <div className="current-turnos">
+              <div className="turno-info">
+                <h3>{puntosServicios[selectedPunto].nombre}</h3>
+                <p>Turno Actual: {selectedPunto === '1' ? currentTurnos.melendez : currentTurnos.polvorines}</p>
+                <p>Tiempo Estimado: {selectedPunto === '1' ? estimatedTime.melendez : estimatedTime.polvorines} minutos</p>
+              </div>
+            </div>
+
+            <div className="service-selector">
+              <label className="pedir-turno-label">Tipo de Servicio:</label>
+              <select
+                value={tipoCita}
+                onChange={(e) => setTipoCita(e.target.value)}
+                className="pedir-turno-input"
+              >
+                <option value="">Selecciona un servicio</option>
+                {puntosServicios[selectedPunto].servicios.map((servicio, index) => (
+                  <option key={index} value={servicio.toLowerCase()}>{servicio}</option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              className="request-button"
+              onClick={handleRequestTurno}
             >
-              <option value="">Seleccione un punto</option>
-              {puntosAtencion.map((punto) => (
-                <option key={punto.id} value={punto.id}>
-                  {punto.nombre} - {punto.profesional ? punto.profesional : 'Sin profesional'}
-                </option>
-              ))}
-            </select>
+              Solicitar Turno
+            </button>
+          </>
+        )}
 
-            {selectedPunto && (
-              <>
-                <label style={styles.label}>Servicios Disponibles:</label>
-                <p style={styles.servicios}>{selectedPunto.servicios_texto || 'No se especificaron servicios'}</p>
-
-                <label style={styles.label}>Tipo de Cita:</label>
-                <select value={tipoCita} onChange={(e) => setTipoCita(e.target.value)} style={styles.input}>
-                  <option value="medica">Cita Médica</option>
-                  <option value="odontologica">Cita Odontológica</option>
-                </select>
-
-                <label style={styles.label}>Fecha de la Cita:</label>
-                <input
-                  type="date"
-                  value={fechaCita}
-                  onChange={(e) => setFechaCita(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  style={styles.input}
-                  required
-                />
-
-                <label style={styles.label}>Hora de la Cita:</label>
-                <select
-                  value={horaCita}
-                  onChange={(e) => setHoraCita(e.target.value)}
-                  style={styles.input}
-                  required
-                >
-                  {horasDisponibles.map(hora => (
-                    <option key={hora} value={hora}>{hora}</option>
-                  ))}
-                </select>
-
-                <label style={styles.label}>Prioridad:</label>
-                <select value={prioridad} onChange={(e) => setPrioridad(e.target.value)} style={styles.input}>
-                  <option value="N">Normal</option>
-                  <option value="P">Alta</option>
-                </select>
-
-                <label style={styles.label}>Descripción:</label>
-                <textarea
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  style={styles.textarea}
-                  required
-                />
-              </>
-            )}
-
-            <button type="submit" style={styles.button} disabled={!selectedPunto}>Solicitar Turno</button>
-          </form>
+        {/* Publicidad */}
+        <div className="advertisement">
+          <h3>Publicidad</h3>
+          <img
+            src="https://media.giphy.com/media/3o7TKz9bDaN3jksX6o/giphy.gif"
+            alt="Publicidad"
+            className="ad-gif"
+          />
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   );
-};
-
-const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    paddingTop: '80px',
-    paddingBottom: '60px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    boxSizing: 'border-box',
-  },
-  container: {
-    padding: '20px',
-    maxWidth: '600px',
-    width: '100%',
-    margin: '0 auto',
-    boxSizing: 'border-box',
-  },
-  title: {
-    fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-    textAlign: 'center',
-    marginBottom: '20px',
-    color: '#333',
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    marginBottom: '15px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    width: '100%',
-  },
-  label: {
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    color: '#333',
-  },
-  input: {
-    padding: '10px',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  textarea: {
-    padding: '10px',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    minHeight: '100px',
-    width: '100%',
-    boxSizing: 'border-box',
-    resize: 'vertical',
-  },
-  button: {
-    padding: '10px',
-    backgroundColor: '#50C878',
-    color: '#FFFFFF',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    width: '100%',
-    maxWidth: '200px',
-    margin: '0 auto',
-    transition: 'background-color 0.3s',
-  },
-  servicios: {
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    color: '#666',
-    textAlign: 'left',
-    padding: '10px',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '5px',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
 };
 
 export default PedirTurno;

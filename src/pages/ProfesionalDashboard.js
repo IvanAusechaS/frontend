@@ -1,100 +1,152 @@
 // frontend/src/pages/ProfesionalDashboard.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getTurnos, updateTurno } from '../services/api';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
 import './ProfesionalDashboard.css';
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
   const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
-  useEffect(() => {
-    const fetchTurnos = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const data = await getTurnos(token);
-        setTurnos(data);
-        setLoading(false);
-      } catch (err) {
-        setError('Error al cargar turnos');
-        setLoading(false);
+  const handleError = useCallback((err) => {
+    if (err.response?.status === 401) {
+      setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      localStorage.clear();
+      setUser(null);
+      navigate('/login');
+    } else {
+      setError(`Error: ${err.response?.data?.detail || err.message}`);
+    }
+    setLoading(false);
+  }, [navigate, setUser]);
+
+  const fetchTurnos = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token || !user.es_profesional) {
+        setError('Debes ser un profesional autenticado para acceder.');
+        navigate('/login');
+        return;
       }
-    };
-    fetchTurnos();
-  }, []);
+      const data = await getTurnos();
+      setTurnos(data);
+      setLoading(false);
+    } catch (err) {
+      handleError(err);
+    }
+  }, [navigate, setUser, user.es_profesional, handleError]);
 
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
-      const token = localStorage.getItem('token');
-      const updatedTurno = await updateTurno(turnoId, nuevoEstado, token);
-      setTurnos(turnos.map(turno =>
-        turno.id === turnoId ? { ...turno, estado: updatedTurno.estado, fecha_atencion: updatedTurno.fecha_atencion } : turno
-      ));
+      const data = { estado: nuevoEstado }; // Solo enviamos estado
+      console.log('Actualizando turno:', { id: turnoId, data });
+      const updatedTurno = await updateTurno(turnoId, data);
+      const updatedTurnos = turnos.map(turno =>
+        turno.id === turnoId ? { ...turno, ...updatedTurno } : turno
+      );
+      setTurnos(updatedTurnos);
+      setError(''); // Limpiar errores previos
     } catch (err) {
-      console.error('Error al actualizar el turno:', err.response?.data || err.message);
-      setError(`Error al actualizar el turno: ${err.response?.data?.detail || err.message}`);
+      console.error('Error completo:', err.response?.data || err.message);
+      setError(`Error al actualizar el turno: ${err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message}`);
     }
   };
 
+  useEffect(() => {
+    fetchTurnos();
+    const interval = setInterval(fetchTurnos, 30000); // Refresca cada 30 segundos
+    return () => clearInterval(interval);
+  }, [fetchTurnos]);
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString('es-CO')} ${date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  // Datos para las cajas
+  const turnoActual = turnos.find(turno => turno.estado === 'En progreso') ||
+                      turnos.filter(turno => turno.estado === 'En espera')
+                            .sort((a, b) => a.numero.localeCompare(b.numero))[0];
+  const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera');
+  const puntoAtencion = turnos.length > 0 ? turnos[0].punto_atencion : 'No asignado';
+
   return (
-    <>
-      <Nav user={user} setUser={setUser} />
-      <div className="dashboard-container">
-        <h2 className="dashboard-title">Dashboard Profesional</h2>
-        {loading && <p className="dashboard-text">Cargando...</p>}
-        {error && <p className="dashboard-error">{error}</p>}
-        {!loading && !error && (
-          <div className="turnos-table-wrapper">
-            <h3 className="dashboard-subtitle">Mis Turnos</h3>
-            {turnos.length > 0 ? (
-              <table className="turnos-table">
-                <thead>
-                  <tr>
-                    <th>Número</th>
-                    <th>Paciente</th>
-                    <th>Tipo</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {turnos.map((turno) => (
-                    <tr key={turno.id} className={`turno-row estado-${turno.estado.toLowerCase().replace(' ', '-')}`}>
-                      <td data-label="Número">{turno.numero}</td>
-                      <td data-label="Paciente">{turno.usuario}</td> {/* Cambiado a turno.usuario porque es string */}
-                      <td data-label="Tipo">{turno.tipo_cita}</td>
-                      <td data-label="Fecha">{new Date(turno.fecha_cita).toLocaleDateString()}</td>
-                      <td data-label="Hora">{new Date(turno.fecha_cita).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                      <td data-label="Estado">{turno.estado}</td>
-                      <td data-label="Acción">
-                        <select
-                          value={turno.estado}
-                          onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
-                          className="estado-select"
-                        >
-                          <option value="En espera">En espera</option>
-                          <option value="En progreso">En progreso</option>
-                          <option value="Atendido">Atendido</option>
-                          <option value="Cancelado">Cancelado</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+    <div className="profesional-dashboard">
+      <h2 className="dashboard-title">Dashboard Profesional</h2>
+      {loading && <p className="dashboard-loading">Cargando...</p>}
+      {error && <p className="dashboard-error">{error}</p>}
+      {!loading && !error && (
+        <div className="dashboard-grid">
+          {/* Caja: Turno Actual */}
+          <div className="dashboard-card turno-actual">
+            <h3>Turno Actual</h3>
+            {turnoActual ? (
+              <div className="turno-details">
+                <p><strong>Número:</strong> {turnoActual.numero}</p>
+                <p><strong>Paciente:</strong> {turnoActual.usuario}</p>
+                <p><strong>Tipo:</strong> {turnoActual.tipo_cita}</p>
+                <p><strong>Fecha:</strong> {formatDateTime(turnoActual.fecha_cita)}</p>
+                <p><strong>Estado:</strong> {turnoActual.estado}</p>
+                <select
+                  value={turnoActual.estado}
+                  onChange={(e) => handleEstadoChange(turnoActual.id, e.target.value)}
+                  className="estado-select"
+                >
+                  <option value="En espera">En espera</option>
+                  <option value="En progreso">En progreso</option>
+                  <option value="Atendido">Atendido</option>
+                  <option value="Cancelado">Cancelado</option>
+                </select>
+              </div>
             ) : (
-              <p className="dashboard-text">No hay turnos asignados.</p>
+              <p>No hay turno actual.</p>
             )}
           </div>
-        )}
-      </div>
-      <Footer />
-    </>
+
+          {/* Caja: Turnos en Espera */}
+          <div className="dashboard-card turnos-espera">
+            <h3>Turnos en Espera ({turnosEnEspera.length})</h3>
+            {turnosEnEspera.length > 0 ? (
+              <ul className="turno-list">
+                {turnosEnEspera.map(turno => (
+                  <li key={turno.id} className="turno-item">
+                    <span>{turno.numero} - {turno.usuario} ({turno.tipo_cita})</span>
+                    <button
+                      onClick={() => handleEstadoChange(turno.id, 'En progreso')}
+                      className="action-button"
+                    >
+                      Atender
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No hay turnos en espera.</p>
+            )}
+          </div>
+
+          {/* Caja: Punto de Atención */}
+          <div className="dashboard-card punto-atencion">
+            <h3>Punto de Atención</h3>
+            <p>{puntoAtencion}</p>
+          </div>
+
+          {/* Caja: Perfil */}
+          <div className="dashboard-card perfil">
+            <h3>Perfil</h3>
+            <p><strong>Nombre:</strong> {user.nombre}</p>
+            <p><strong>Cédula:</strong> {user.cedula}</p>
+            <p><strong>Email:</strong> {user.email || 'No disponible'}</p>
+            <button onClick={() => navigate('/update-profile')} className="profile-button">
+              Editar Perfil
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,176 +1,128 @@
 // frontend/src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../services/api';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
+import axios from 'axios';
+import './Register.css';
+
+const API_URL = 'http://localhost:8000/api/';
 
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleNombreChange = (e) => {
-    const value = e.target.value;
-    // Solo letras y espacios
-    if (/^[A-Za-z\s]*$/.test(value)) {
-      setNombre(value);
+  // Normaliza el user al formato {id, cedula, email, nombre, es_profesional}
+  const normalizeUser = (userData, formData) => {
+    return {
+      id: userData.id,
+      cedula: userData.cedula || formData.cedula || '',
+      email: userData.email || formData.email || '',
+      nombre: userData.nombre || formData.nombre || 'Usuario',
+      es_profesional: userData.es_profesional || false
+    };
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = { cedula, nombre, email, telefono, password };
+      const response = await axios.post(`${API_URL}register/`, formData);
+      const { access, refresh, user } = response.data;
+      const normalizedUser = normalizeUser(user, formData); // Usa datos del formulario como fallback
+      localStorage.setItem('token', access);
+      localStorage.setItem('refreshToken', refresh);
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+      setUser(normalizedUser);
+      setSuccess('Registro exitoso. Redirigiendo...');
       setError('');
-    } else {
-      setError('El nombre solo debe contener letras y espacios');
+      setTimeout(() => navigate('/'), 2000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al registrarse');
+      setSuccess('');
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-    if (!nombre.trim().includes(' ')) {
-      setError('Debes ingresar nombres y apellidos');
-      return;
-    }
-    try {
-      const data = await registerUser({ cedula, nombre, password });
-      localStorage.setItem('token', data.access);
-      localStorage.setItem('user', JSON.stringify({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional }));
-      setUser({ id: data.user.id, nombre: data.user.nombre, es_profesional: data.user.es_profesional });
-      navigate('/');
-    } catch (err) {
-      setError('Error al registrarse. Verifica tus datos.');
-      console.error('Error de registro:', err.response?.data || err.message);
-    }
-  };
+  const handleLoginRedirect = () => navigate('/login');
 
   return (
-    <>
-      <Nav user={null} setUser={setUser} />
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          <h2 style={styles.title}>Registrarse</h2>
-          {error && <p style={styles.error}>{error}</p>}
-          <form onSubmit={handleSubmit} style={styles.form}>
+    <div className="register-container">
+      <div className="register-card">
+        <h1 className="register-title">Regístrate</h1>
+        <p className="register-subtitle">Crea tu cuenta para comenzar</p>
+        {error && <p className="register-error">{error}</p>}
+        {success && <p className="register-success">{success}</p>}
+        <form onSubmit={handleRegister} className="register-form">
+          <div className="register-input-group">
+            <label className="register-label">Cédula</label>
             <input
               type="text"
-              placeholder="Cédula"
               value={cedula}
               onChange={(e) => setCedula(e.target.value)}
-              style={styles.input}
+              placeholder="Ingresa tu cédula"
+              className="register-input"
               required
             />
+          </div>
+          <div className="register-input-group">
+            <label className="register-label">Nombre</label>
             <input
               type="text"
-              placeholder="Nombres y Apellidos"
               value={nombre}
-              onChange={handleNombreChange}
-              style={styles.input}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ingresa tu nombre"
+              className="register-input"
               required
             />
+          </div>
+          <div className="register-input-group">
+            <label className="register-label">Correo Electrónico</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ingresa tu correo"
+              className="register-input"
+              required
+            />
+          </div>
+          <div className="register-input-group">
+            <label className="register-label">Teléfono</label>
+            <input
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder="Ingresa tu número de teléfono"
+              className="register-input"
+              required
+            />
+          </div>
+          <div className="register-input-group">
+            <label className="register-label">Contraseña</label>
             <input
               type="password"
-              placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              placeholder="Crea una contraseña"
+              className="register-input"
               required
             />
-            <input
-              type="password"
-              placeholder="Confirmar Contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              style={styles.input}
-              required
-            />
-            <button type="submit" style={styles.button}>Registrarse</button>
-          </form>
-          <button
-            style={styles.loginButton}
-            onClick={() => navigate('/login')}
-          >
-            ¿Ya tienes cuenta? Inicia sesión
-          </button>
-        </div>
+          </div>
+          <button type="submit" className="register-button">Registrarse</button>
+        </form>
+        <p className="register-link-text">
+          ¿Ya tienes cuenta?{' '}
+          <span onClick={handleLoginRedirect} className="register-link">
+            Inicia sesión
+          </span>
+        </p>
       </div>
-      <Footer />
-    </>
+    </div>
   );
-};
-
-const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    paddingTop: '80px',
-    paddingBottom: '60px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    boxSizing: 'border-box',
-  },
-  container: {
-    padding: '20px',
-    maxWidth: '400px',
-    width: '100%',
-    margin: '0 auto',
-    boxSizing: 'border-box',
-  },
-  title: {
-    fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-    textAlign: 'center',
-    marginBottom: '20px',
-    color: '#333',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    width: '100%',
-  },
-  input: {
-    padding: '10px',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  button: {
-    padding: '10px',
-    backgroundColor: '#50C878',
-    color: '#FFFFFF',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    width: '100%',
-    maxWidth: '200px',
-    margin: '0 auto',
-    transition: 'background-color 0.3s',
-  },
-  loginButton: {
-    padding: '10px',
-    backgroundColor: '#FFFFFF',
-    color: '#50C878',
-    border: '1px solid #50C878',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-    width: '100%',
-    maxWidth: '200px',
-    margin: '15px auto 0',
-    display: 'block',
-    transition: 'background-color 0.3s',
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-    marginBottom: '15px',
-  },
 };
 
 export default Register;

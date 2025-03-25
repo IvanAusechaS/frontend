@@ -1,0 +1,161 @@
+/* frontend/src/pages/Home.css */
+.home-page {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Estilo base para secciones de pantalla completa */
+.full-screen {
+  height: 100vh; /* Altura completa de la pantalla */
+  width: 100vw; /* Ancho completo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+}
+
+/* Sección 1: Hero (Bienvenida) */
+.hero-section {
+  background: linear-gradient(155deg, #ffffff 0%, #90e0ef 89%);
+  color: #03045e; /* Color principal a secundario */
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.hero-button {
+  background-color: #caf0f8; /* Fondo claro */
+  color: #0077b6; /* Color principal */
+  border: 2px solid #90e0ef; /* Detalles secundarios */
+  padding: 15px 40px;
+  font-size: 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.hero-button:hover {
+  background-color: #90e0ef; /* Hover secundario */
+  transform: scale(1.05);
+}
+
+/* Sección 2: Quiénes Somos */
+.about-section {
+  background-color: #caf0f8; /* Fondo claro */
+  color: #03045e; /* Texto oscuro */
+}
+
+.section-content {
+  max-width: 900px;
+}
+
+.section-title {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #0077b6; /* Color principal */
+}
+
+.section-text {
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+/* Sección 3: Servicios */
+.services-section {
+  background-color: #fff; /* Blanco para contraste */
+}
+
+.services-cards {
+  display: flex;
+  justify-content: space-around;
+  gap: 30px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.service-card {
+  background-color: #caf0f8; /* Fondo claro */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 30%;
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+}
+
+.card-title {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #0077b6; /* Color principal */
+}
+
+.card-text {
+  font-size: 1.4rem;
+  color: #03045e; /* Texto oscuro */
+}
+
+/* Sección 4: Cómo Funciona */
+.how-it-works-section {
+  background: linear-gradient(135deg, #0077b6 0%, #90e0ef 100%); /* Principal a secundario */
+  color: #03045e; /* Texto oscuro */
+}
+
+.steps-container {
+  display: flex;
+  justify-content: space-around;
+  gap: 40px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-number {
+  font-size: 3rem;
+  font-weight: bold;
+  background-color: #caf0f8; /* Fondo claro */
+  color: #0077b6; /* Color principal */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.step-text {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Opcional: Scroll suave entre secciones */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
