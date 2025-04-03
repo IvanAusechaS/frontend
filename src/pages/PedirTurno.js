@@ -1,15 +1,16 @@
-// frontend/src/pages/PedirTurno.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../services/api';
 import './PedirTurno.css';
 
 const PedirTurno = ({ user: userProp, setUser }) => {
-  const [currentTurnos, setCurrentTurnos] = useState({ melendez: 'Ninguno', polvorines: 'Ninguno' });
-  const [estimatedTime, setEstimatedTime] = useState({ melendez: 0, polvorines: 0 });
+  const [currentTurnos, setCurrentTurnos] = useState({});
+  const [estimatedTime, setEstimatedTime] = useState({});
   const [puntosServicios, setPuntosServicios] = useState({});
   const [selectedPunto, setSelectedPunto] = useState('');
   const [tipoCita, setTipoCita] = useState('');
+  const [hasDisability, setHasDisability] = useState(null);  // null, 'yes', 'no'
+  const [disabilityType, setDisabilityType] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
@@ -26,18 +27,12 @@ const PedirTurno = ({ user: userProp, setUser }) => {
           return;
         }
         const turnosData = await getCurrentTurnos();
-        setCurrentTurnos({
-          melendez: turnosData.melendez,
-          polvorines: turnosData.polvorines,
-        });
-        setEstimatedTime({
-          melendez: turnosData.melendezTime,
-          polvorines: turnosData.polvorinesTime,
-        });
+        setCurrentTurnos(turnosData.current_turnos || {});
+        setEstimatedTime(turnosData.estimated_times || {});
 
         const puntosData = await getPuntosAtencionServices();
         setPuntosServicios(puntosData);
-        setSelectedPunto(Object.keys(puntosData)[0] || ''); // Selecciona el primer punto por defecto
+        setSelectedPunto(Object.keys(puntosData)[0] || '');
       } catch (err) {
         setError('Error al cargar datos: ' + (err.response?.data?.detail || err.message));
         if (err.response?.status === 401) {
@@ -48,7 +43,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       }
     };
     fetchData();
-    const interval = setInterval(() => fetchData(), 30000); // Actualiza cada 30 segundos
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [navigate, setUser, user.id]);
 
@@ -61,23 +56,41 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setError('Por favor, selecciona un tipo de servicio.');
       return;
     }
+    if (hasDisability === null) {
+      setError('Por favor, indica si tienes alguna discapacidad.');
+      return;
+    }
+    if (hasDisability === 'yes' && !disabilityType) {
+      setError('Por favor, selecciona el tipo de discapacidad.');
+      return;
+    }
     setError('');
     setSuccess('');
     try {
       const turnoData = {
-        punto_atencion: parseInt(selectedPunto),  // ID del punto
+        punto_atencion: parseInt(selectedPunto),
         tipo_cita: tipoCita,
+        prioridad: hasDisability === 'yes' ? 'P' : 'N',
       };
       const newTurno = await createTurno(turnoData);
       const puntoNombre = puntosServicios[selectedPunto].nombre;
       setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
       setTipoCita('');
+      setHasDisability(null);
+      setDisabilityType('');
       setTimeout(() => navigate('/appointment-history'), 2000);
     } catch (err) {
       setError('Error al solicitar turno: ' + (err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message));
     }
   };
-  
+
+  const disabilityOptions = [
+    'Movilidad Reducida',
+    'Discapacidad Visual',
+    'Discapacidad Auditiva',
+    'Otra',
+  ];
+
   return (
     <div className="pedir-turno-page">
       <div className="pedir-turno-container">
@@ -85,14 +98,13 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         {error && <p className="pedir-turno-error">{error}</p>}
         {success && <p className="pedir-turno-success">{success}</p>}
 
-        {/* Selector de Punto de Atención */}
         <div className="punto-selector">
           <label className="pedir-turno-label">Punto de Atención:</label>
           <select
             value={selectedPunto}
             onChange={(e) => {
               setSelectedPunto(e.target.value);
-              setTipoCita(''); // Resetear servicio al cambiar punto
+              setTipoCita('');
             }}
             className="pedir-turno-input"
           >
@@ -103,14 +115,13 @@ const PedirTurno = ({ user: userProp, setUser }) => {
           </select>
         </div>
 
-        {/* Turnos Actuales y Servicios */}
         {selectedPunto && (
           <>
             <div className="current-turnos">
               <div className="turno-info">
                 <h3>{puntosServicios[selectedPunto].nombre}</h3>
-                <p>Turno Actual: {selectedPunto === '1' ? currentTurnos.melendez : currentTurnos.polvorines}</p>
-                <p>Tiempo Estimado: {selectedPunto === '1' ? estimatedTime.melendez : estimatedTime.polvorines} minutos</p>
+                <p>Turno Actual: {currentTurnos[selectedPunto] || 'Ninguno'}</p>
+                <p>Tiempo Estimado: {estimatedTime[selectedPunto] || 0} minutos</p>
               </div>
             </div>
 
@@ -128,16 +139,42 @@ const PedirTurno = ({ user: userProp, setUser }) => {
               </select>
             </div>
 
-            <button
-              className="request-button"
-              onClick={handleRequestTurno}
-            >
+            <div className="disability-selector">
+              <label className="pedir-turno-label">¿Tienes alguna discapacidad?</label>
+              <div className="disability-buttons">
+                <button
+                  className={`disability-button ${hasDisability === 'yes' ? 'selected' : ''}`}
+                  onClick={() => setHasDisability('yes')}
+                >
+                  Sí
+                </button>
+                <button
+                  className={`disability-button ${hasDisability === 'no' ? 'selected' : ''}`}
+                  onClick={() => { setHasDisability('no'); setDisabilityType(''); }}
+                >
+                  No
+                </button>
+              </div>
+              {hasDisability === 'yes' && (
+                <select
+                  value={disabilityType}
+                  onChange={(e) => setDisabilityType(e.target.value)}
+                  className="pedir-turno-input"
+                >
+                  <option value="">Selecciona el tipo</option>
+                  {disabilityOptions.map((option, index) => (
+                    <option key={index} value={option.toLowerCase()}>{option}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <button className="request-button" onClick={handleRequestTurno}>
               Solicitar Turno
             </button>
           </>
         )}
 
-        {/* Publicidad */}
         <div className="advertisement">
           <h3>Publicidad</h3>
           <img

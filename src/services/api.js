@@ -1,7 +1,6 @@
-// frontend/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000/api/';
+const API_URL = 'http://127.0.0.1:8000/tickets/';
 
 // Configura una instancia de axios con headers por defecto
 const api = axios.create({
@@ -51,7 +50,6 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Si falla la renovación, redirigir al login
         localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(refreshError);
@@ -84,7 +82,6 @@ export const cancelTurno = async (turnoId) => {
   }
 };
 
-// frontend/src/services/api.js (fragmento actualizado)
 export const getCurrentTurnos = async () => {
   try {
     const response = await api.get('current-turnos/');
@@ -102,31 +99,30 @@ export const createTurno = async (turnoData) => {
     const response = await api.post('turnos/', {
       punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
+      prioridad: turnoData.prioridad || 'N',  // Por defecto 'N' si no se especifica
     });
     console.log('Turno creado:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error completo en createTurno:', error.response);
+    console.error('Error completo en createTurno:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
-
-// Resto del archivo sigue igual...
 
 export const getTurnos = async () => {
   try {
-    const response = await api.get('turnos/');
-    console.log('Turnos obtenidos:', response.data);
-    return response.data;
+      const response = await api.get('profesional-turnos/');
+      console.log('Turnos obtenidos:', response.data);
+      return response.data;
   } catch (error) {
-    console.error('Error en getTurnos:', error.response ? error.response.data : error.message);
-    throw error;
+      console.error('Error en getTurnos:', error.response ? error.response.data : error.message);
+      throw error;
   }
 };
 
-export const loginUser = async (cedula, password) => {
+export const loginUser = async (email, password) => {
   try {
-    const response = await api.post('login/', { cedula, password });
+    const response = await api.post('login/', { email, password });
     console.log('Respuesta de login:', response.data);
     return response.data;
   } catch (error) {
@@ -136,13 +132,20 @@ export const loginUser = async (cedula, password) => {
 };
 
 export const logoutUser = async () => {
-  console.log('Cerrando sesión solo en el frontend');
-  return Promise.resolve({ message: 'Sesión cerrada' });
+  try {
+    const response = await api.post('logout/');
+    console.log('Respuesta de logout:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en logoutUser:', error.response ? error.response.data : error.message);
+    throw error;
+  }
 };
 
 export const registerUser = async (userData) => {
   try {
     const response = await api.post('register/', userData);
+    console.log('Usuario registrado:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en registerUser:', error.response ? error.response.data : error.message);
@@ -152,12 +155,12 @@ export const registerUser = async (userData) => {
 
 export const updateTurno = async (turnoId, turnoData) => {
   try {
-    const response = await api.put(`turnos/${turnoId}/`, turnoData);
-    console.log('Turno actualizado:', response.data);
-    return response.data;
+      const response = await api.put(`turnos/${turnoId}/`, turnoData);
+      console.log('Turno actualizado:', response.data);
+      return response.data;
   } catch (error) {
-    console.error('Error en updateTurno:', error.response ? error.response.data : error.message);
-    throw error;
+      console.error('Error en updateTurno:', error.response ? error.response.data : error.message);
+      throw error;
   }
 };
 
@@ -215,7 +218,7 @@ export const getPuntosAtencionServices = async () => {
 export const getTickets = async () => {
   try {
     const response = await api.get('tickets/');
-    console.log('Tickets obtenidos:', response.data); // Añadido para depuración
+    console.log('Tickets obtenidos:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en getTickets:', error.response ? error.response.data : error.message);

@@ -1,22 +1,17 @@
-// frontend/src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from '../services/api';
 import './Register.css';
-
-const API_URL = 'http://localhost:8000/api/';
 
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
-  const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // Normaliza el user al formato {id, cedula, email, nombre, es_profesional}
   const normalizeUser = (userData, formData) => {
     return {
       id: userData.id,
@@ -30,10 +25,10 @@ const Register = ({ setUser }) => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const formData = { cedula, nombre, email, telefono, password };
-      const response = await axios.post(`${API_URL}register/`, formData);
-      const { access, refresh, user } = response.data;
-      const normalizedUser = normalizeUser(user, formData); // Usa datos del formulario como fallback
+      const formData = { cedula, nombre, email, password };
+      const response = await registerUser(formData);
+      const { access, refresh, user } = response;
+      const normalizedUser = normalizeUser(user, formData);
       localStorage.setItem('token', access);
       localStorage.setItem('refreshToken', refresh);
       localStorage.setItem('user', JSON.stringify(normalizedUser));
@@ -86,17 +81,6 @@ const Register = ({ setUser }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Ingresa tu correo"
-              className="register-input"
-              required
-            />
-          </div>
-          <div className="register-input-group">
-            <label className="register-label">Teléfono</label>
-            <input
-              type="tel"
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-              placeholder="Ingresa tu número de teléfono"
               className="register-input"
               required
             />

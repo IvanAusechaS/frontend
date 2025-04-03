@@ -1,36 +1,33 @@
-// frontend/src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
 import axios from 'axios';
 import './Login.css';
 
-const API_URL = 'http://localhost:8000/api/';
+const API_URL = 'http://localhost:8000/tickets/';
 
 const Login = ({ setUser }) => {
-  const [cedula, setCedula] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   // Normaliza el user al formato {id, cedula, email, nombre, es_profesional}
-  const normalizeUser = (userData, inputCedula = '') => {
+  const normalizeUser = (userData) => {
     return {
       id: userData.id,
-      cedula: userData.cedula || inputCedula || '',
+      cedula: userData.cedula || '',
       email: userData.email || '',
       nombre: userData.nombre || 'Usuario',
       es_profesional: userData.es_profesional || false
     };
   };
 
-  const handleManualLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}login/`, { cedula, password });
+      const response = await axios.post(`${API_URL}login/`, { email, password });
       const { access, refresh, user } = response.data;
-      const normalizedUser = normalizeUser(user, cedula); // Usa la cédula del formulario si no viene
+      const normalizedUser = normalizeUser(user);
       localStorage.setItem('token', access);
       localStorage.setItem('refreshToken', refresh);
       localStorage.setItem('user', JSON.stringify(normalizedUser));
@@ -38,27 +35,7 @@ const Login = ({ setUser }) => {
       navigate('/');
     } catch (err) {
       setError('Credenciales inválidas');
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-      const response = await axios.post(`${API_URL}firebase-login/`, { id_token: idToken });
-      const { access, refresh, user } = response.data;
-      const normalizedUser = normalizeUser(user); // Normaliza el user de Firebase
-      localStorage.setItem('token', access);
-      localStorage.setItem('refreshToken', refresh);
-      localStorage.setItem('user', JSON.stringify(normalizedUser));
-      setUser(normalizedUser);
-      if (user.needs_cedula) {
-        navigate('/complete-profile');
-      } else {
-        navigate('/');
-      }
-    } catch (err) {
-      setError('Error al iniciar sesión con Google');
+      console.error('Error en login:', err.response?.data || err.message);
     }
   };
 
@@ -72,15 +49,15 @@ const Login = ({ setUser }) => {
         <p className="login-subtitle">Accede a tu cuenta con facilidad</p>
         {error && <p className="login-error">{error}</p>}
 
-        {/* Formulario de login manual */}
-        <form onSubmit={handleManualLogin} className="login-form">
+        {/* Formulario de login con email */}
+        <form onSubmit={handleLogin} className="login-form">
           <div className="login-input-group">
-            <label className="login-label">Cédula</label>
+            <label className="login-label">Correo Electrónico</label>
             <input
-              type="text"
-              value={cedula}
-              onChange={(e) => setCedula(e.target.value)}
-              placeholder="Ingresa tu cédula"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ingresa tu correo"
               className="login-input"
               required
             />
@@ -98,11 +75,6 @@ const Login = ({ setUser }) => {
           </div>
           <button type="submit" className="login-button">Iniciar Sesión</button>
         </form>
-
-        {/* Botón de login con Google */}
-        <button onClick={handleGoogleLogin} className="login-google-button">
-          <span className="login-google-icon">G</span> Iniciar con Google
-        </button>
 
         {/* Enlaces adicionales */}
         <div className="login-links-container">

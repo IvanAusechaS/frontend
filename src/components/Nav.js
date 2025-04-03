@@ -1,8 +1,9 @@
-// frontend/src/components/Nav.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logoutUser } from '../services/api';
+import axios from 'axios';
 import './Nav.css';
+
+const API_URL = 'http://localhost:8000/tickets/';
 
 const Nav = ({ user, setUser }) => {
   const [isOpen, setIsOpen] = useState(false); // Menú principal
@@ -16,10 +17,10 @@ const Nav = ({ user, setUser }) => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Token al intentar cerrar sesión:', token);
-      console.log('Usuario actual:', user);
       if (!token) throw new Error('No hay token disponible');
-      await logoutUser();
+      await axios.post(`${API_URL}logout/`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');

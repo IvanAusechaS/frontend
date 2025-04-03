@@ -1,4 +1,3 @@
-// frontend/src/pages/ProfesionalDashboard.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTurnos, updateTurno } from '../services/api';
@@ -41,14 +40,14 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
 
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
-      const data = { estado: nuevoEstado }; // Solo enviamos estado
+      const data = { estado: nuevoEstado };
       console.log('Actualizando turno:', { id: turnoId, data });
       const updatedTurno = await updateTurno(turnoId, data);
       const updatedTurnos = turnos.map(turno =>
         turno.id === turnoId ? { ...turno, ...updatedTurno } : turno
       );
       setTurnos(updatedTurnos);
-      setError(''); // Limpiar errores previos
+      setError('');
     } catch (err) {
       console.error('Error completo:', err.response?.data || err.message);
       setError(`Error al actualizar el turno: ${err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message}`);
@@ -57,7 +56,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
 
   useEffect(() => {
     fetchTurnos();
-    const interval = setInterval(fetchTurnos, 30000); // Refresca cada 30 segundos
+    const interval = setInterval(fetchTurnos, 30000);
     return () => clearInterval(interval);
   }, [fetchTurnos]);
 
@@ -66,11 +65,17 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
     return `${date.toLocaleDateString('es-CO')} ${date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  // Datos para las cajas
   const turnoActual = turnos.find(turno => turno.estado === 'En progreso') ||
                       turnos.filter(turno => turno.estado === 'En espera')
-                            .sort((a, b) => a.numero.localeCompare(b.numero))[0];
-  const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera');
+                            .sort((a, b) => {
+                              if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
+                              return a.prioridad === 'P' ? -1 : 1; // Prioridad 'P' primero
+                            })[0];
+  const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera')
+                               .sort((a, b) => {
+                                 if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
+                                 return a.prioridad === 'P' ? -1 : 1;
+                               });
   const puntoAtencion = turnos.length > 0 ? turnos[0].punto_atencion : 'No asignado';
 
   return (
@@ -80,7 +85,6 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
       {error && <p className="dashboard-error">{error}</p>}
       {!loading && !error && (
         <div className="dashboard-grid">
-          {/* Caja: Turno Actual */}
           <div className="dashboard-card turno-actual">
             <h3>Turno Actual</h3>
             {turnoActual ? (
@@ -106,14 +110,13 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
             )}
           </div>
 
-          {/* Caja: Turnos en Espera */}
           <div className="dashboard-card turnos-espera">
             <h3>Turnos en Espera ({turnosEnEspera.length})</h3>
             {turnosEnEspera.length > 0 ? (
               <ul className="turno-list">
                 {turnosEnEspera.map(turno => (
                   <li key={turno.id} className="turno-item">
-                    <span>{turno.numero} - {turno.usuario} ({turno.tipo_cita})</span>
+                    <span>{turno.numero} ({turno.prioridad === 'P' ? 'Prioritario' : 'Normal'}) - {turno.usuario} ({turno.tipo_cita})</span>
                     <button
                       onClick={() => handleEstadoChange(turno.id, 'En progreso')}
                       className="action-button"
@@ -128,13 +131,11 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
             )}
           </div>
 
-          {/* Caja: Punto de Atención */}
           <div className="dashboard-card punto-atencion">
             <h3>Punto de Atención</h3>
             <p>{puntoAtencion}</p>
           </div>
 
-          {/* Caja: Perfil */}
           <div className="dashboard-card perfil">
             <h3>Perfil</h3>
             <p><strong>Nombre:</strong> {user.nombre}</p>
