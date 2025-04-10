@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { logoutUser } from '../services/api'; // Importar logoutUser
 import './Nav.css';
 
-const API_URL = 'http://localhost:8000/tickets/';
-
 const Nav = ({ user, setUser }) => {
-  const [isOpen, setIsOpen] = useState(false); // Menú principal
-  const [isProfileOpen, setIsProfileOpen] = useState(false); // Submenú del perfil
+  const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,11 +14,7 @@ const Nav = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No hay token disponible');
-      await axios.post(`${API_URL}logout/`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await logoutUser(); // Usar logoutUser de api.js
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
@@ -30,8 +24,8 @@ const Nav = ({ user, setUser }) => {
       setIsProfileOpen(false);
       navigate('/login');
     } catch (err) {
-      console.error('Error al cerrar sesión:', err.message || err);
-      alert(`No se pudo cerrar sesión. Error: ${err.message || 'Desconocido'}`);
+      console.error('Error al cerrar sesión:', err.response?.data || err.message);
+      alert(`No se pudo cerrar sesión. Error: ${err.response?.data?.detail || err.message || 'Desconocido'}`);
     }
   };
 

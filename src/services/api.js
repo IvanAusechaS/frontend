@@ -133,8 +133,9 @@ export const loginUser = async (email, password) => {
 
 export const logoutUser = async () => {
   try {
-    const response = await api.post('logout/');
-    console.log('Respuesta de logout:', response.data);
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await api.post('logout/', { refresh: refreshToken });
+    console.log('Logout exitoso:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en logoutUser:', error.response ? error.response.data : error.message);
@@ -155,12 +156,12 @@ export const registerUser = async (userData) => {
 
 export const updateTurno = async (turnoId, turnoData) => {
   try {
-      const response = await api.put(`turnos/${turnoId}/`, turnoData);
-      console.log('Turno actualizado:', response.data);
-      return response.data;
+    const response = await api.put(`turnos/${turnoId}/`, turnoData);
+    console.log('Turno actualizado:', response.data);
+    return response.data;
   } catch (error) {
-      console.error('Error en updateTurno:', error.response ? error.response.data : error.message);
-      throw error;
+    console.error('Error en updateTurno:', error.response ? error.response.data : error.message);
+    throw error;
   }
 };
 
@@ -232,6 +233,16 @@ export const buscarUsuarioPorCedula = async (cedula) => {
     return response.data;
   } catch (error) {
     console.error('Error en buscarUsuarioPorCedula:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+export const getProfesionalStats = async () => {
+  try {
+    const response = await api.get('profesional-stats/');
+    console.log('Estadísticas obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en getProfesionalStats:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
