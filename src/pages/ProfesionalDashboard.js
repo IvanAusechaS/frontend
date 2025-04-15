@@ -2,13 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTurnos, updateTurno } from '../services/api';
 import './ProfesionalDashboard.css';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaCalendarAlt, FaStethoscope, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { MdPriorityHigh } from 'react-icons/md';
 import EstadisticasGraficas from './EstadisticasGraficas';
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterEstado, setFilterEstado] = useState('all');
   const navigate = useNavigate();
   const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
@@ -33,51 +35,31 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
         return;
       }
       const data = await getTurnos();
-      console.log('Datos de turnos:', data);
       setTurnos(data);
       setLoading(false);
     } catch (err) {
       handleError(err);
     }
-  }, [navigate, setUser, user.es_profesional, handleError]);
+  }, [navigate, user.es_profesional, handleError]);
 
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
       const turno = turnos.find(t => t.id === turnoId);
       if (!turno) throw new Error('Turno no encontrado');
-
-      const puntoAtencionId = turno.punto_atencion_id_read;
-      if (!puntoAtencionId) {
-        throw new Error('No se encontró punto_atencion_id_read en el turno');
-      }
-
-      if (!turno.tipo_cita) throw new Error('El campo tipo_cita es requerido');
-      if (!turno.numero) throw new Error('El campo numero es requerido');
-      if (!turno.usuario) throw new Error('El campo usuario es requerido');
-      if (!turno.fecha_cita) throw new Error('El campo fecha_cita es requerido');
-      if (!turno.prioridad) throw new Error('El campo prioridad es requerido');
-
+  
       const data = {
         estado: nuevoEstado,
-        punto_atencion_id: puntoAtencionId,
-        tipo_cita: turno.tipo_cita,
-        numero: turno.numero,
-        usuario: turno.usuario,
-        fecha_cita: turno.fecha_cita,
-        prioridad: turno.prioridad,
-        descripcion: turno.descripcion || '',
       };
-
-      console.log('Actualizando turno:', { id: turnoId, data });
+  
       const updatedTurno = await updateTurno(turnoId, data);
-      const updatedTurnos = turnos.map(turno =>
-        turno.id === turnoId ? { ...turno, ...updatedTurno } : turno
+      const updatedTurnos = turnos.map(t =>
+        t.id === turnoId ? { ...t, ...updatedTurno } : t
       );
       setTurnos(updatedTurnos);
       setError('');
     } catch (err) {
-      console.error('Error completo:', err.response?.data || err.message);
-      setError(`Error al actualizar el turno: ${err.response?.data?.detail || JSON.stringify(err.response?.data) || err.message}`);
+      console.error('Error al actualizar el turno:', err);
+      setError(`Error al actualizar el turno: ${err.response?.data?.detail || err.message}`);
     }
   };
 
@@ -89,7 +71,16 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    return `${date.toLocaleDateString('es-CO')} ${date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
+    const offsetColombia = -5 * 60; // UTC-5 en minutos
+    const dateColombia = new Date(date.getTime() + offsetColombia * 60 * 1000);
+    return `${dateColombia.toLocaleDateString('es-CO')} ${dateColombia.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const offsetColombia = -5 * 60; // UTC-5 en minutos
+    const dateColombia = new Date(date.getTime() + offsetColombia * 60 * 1000);
+    return dateColombia.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
   };
 
   const turnoActual = turnos.find(turno => turno.estado === 'En progreso') ||
@@ -98,56 +89,114 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                               if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
                               return a.prioridad === 'P' ? -1 : 1;
                             })[0];
+  
   const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera')
                                .sort((a, b) => {
                                  if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
                                  return a.prioridad === 'P' ? -1 : 1;
                                });
 
+  const turnosCompletados = turnos.filter(turno => turno.estado === 'Atendido');
+  const turnosCancelados = turnos.filter(turno => turno.estado === 'Cancelado');
+
+  // Filtrar turnos para el día actual y horario laboral
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const turnosParaGraficas = turnos.filter(turno => {
+    const fechaUTC = new Date(turno.fecha_cita);
+    const offsetColombia = -5 * 60;
+    const fechaColombia = new Date(fechaUTC.getTime() + offsetColombia * 60 * 1000);
+    const fechaTurno = new Date(fechaColombia);
+    fechaTurno.setHours(0, 0, 0, 0);
+  
+    const esHoy = fechaTurno.getTime() === today.getTime();
+    return esHoy; // Eliminar la restricción de horario
+  });
+  
+  // Filtrar la lista de todos los turnos
+  const getFilteredTurnos = () => {
+    if (filterEstado === 'all') return turnos;
+    return turnos.filter(turno => turno.estado === filterEstado);
+  };
+
+  const filteredTurnos = getFilteredTurnos();
+
   return (
     <div className="profesional-dashboard">
-      <h2 className="dashboard-title">Dashboard Profesional</h2>
-      {loading && <p className="dashboard-loading">Cargando...</p>}
-      {error && <p className="dashboard-error">{error}</p>}
+      <header className="dashboard-header">
+        <h1 className="dashboard-title">
+          <FaStethoscope className="title-icon" /> Panel de Control
+        </h1>
+        <div className="profesional-info">
+          <FaUser className="user-icon" />
+          <span>Dr. {user.nombre || 'Profesional'}</span>
+        </div>
+      </header>
+
+      {loading && (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Cargando turnos...</p>
+        </div>
+      )}
+      
+      {error && <div className="error-alert">{error}</div>}
+      
       {!loading && !error && (
-        <div className="dashboard-grid">
-          <div className="top-section">
-            <div className="dashboard-card turno-actual">
-              <h3>Turno Actual</h3>
+        <div className="dashboard-content">
+          <section className="dashboard-cards">
+            <div className="card turno-actual-card">
+              <h2>Turno Actual</h2>
               {turnoActual ? (
-                <div className="turno-details">
-                  <p><strong><FaUser style={{ marginRight: '5px' }} />Usuario:</strong> {turnoActual.usuario}</p>
-                  <p><strong>Número:</strong> {turnoActual.numero}</p>
-                  <p><strong>Paciente:</strong> {turnoActual.usuario}</p>
-                  <p><strong>Tipo:</strong> {turnoActual.tipo_cita}</p>
-                  <p><strong>Fecha:</strong> {formatDateTime(turnoActual.fecha_cita)}</p>
-                  <p><strong>Estado:</strong> {turnoActual.estado}</p>
-                  <select
-                    value={turnoActual.estado}
-                    onChange={(e) => handleEstadoChange(turnoActual.id, e.target.value)}
-                    className="estado-select"
-                  >
-                    <option value="En espera">En espera</option>
-                    <option value="En progreso">En progreso</option>
-                    <option value="Atendido">Atendido</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
+                <div className="turno-actual-content">
+                  <div className="numero-turno">{turnoActual.numero}</div>
+                  <div className="turno-info">
+                    <p><FaUser /> <strong>Paciente:</strong> {typeof turnoActual.usuario === 'object' ? turnoActual.usuario.nombre : turnoActual.usuario}</p>
+                    <p><FaStethoscope /> <strong>Tipo:</strong> {turnoActual.tipo_cita}</p>
+                    <p><FaCalendarAlt /> <strong>Fecha:</strong> {formatDateTime(turnoActual.fecha_cita)}</p>
+                    {turnoActual.prioridad === 'P' && (
+                      <p className="prioridad">
+                        <MdPriorityHigh /> <strong>Prioritario</strong>
+                      </p>
+                    )}
+                  </div>
+                  <div className="turno-actions">
+                    <select
+                      value={turnoActual.estado}
+                      onChange={(e) => handleEstadoChange(turnoActual.id, e.target.value)}
+                      className="estado-select"
+                    >
+                      <option value="En espera">En espera</option>
+                      <option value="En progreso">En progreso</option>
+                      <option value="Atendido">Atendido</option>
+                      <option value="Cancelado">Cancelado</option>
+                    </select>
+                  </div>
                 </div>
               ) : (
-                <p>No hay turno actual.</p>
+                <div className="no-turno">
+                  <p>No hay turno en atención actualmente</p>
+                </div>
               )}
             </div>
 
-            <div className="dashboard-card turnos-espera">
-              <h3>Turnos en Espera ({turnosEnEspera.length})</h3>
+            <div className="card turnos-espera-card">
+              <h2>Sala de Espera <span className="count-badge">{turnosEnEspera.length}</span></h2>
               {turnosEnEspera.length > 0 ? (
-                <ul className="turno-list">
+                <ul className="turnos-list">
                   {turnosEnEspera.map(turno => (
-                    <li key={turno.id} className="turno-item">
-                      <span>{turno.numero} ({turno.prioridad === 'P' ? 'Prioritario' : 'Normal'}) - {turno.usuario} ({turno.tipo_cita})</span>
+                    <li key={turno.id} className={`turno-item ${turno.prioridad === 'P' ? 'prioritario' : ''}`}>
+                      <div className="turno-info-container">
+                        <span className="turno-numero">{turno.numero}</span>
+                        <div className="turno-detalles">
+                          <p className="turno-paciente">{typeof turno.usuario === 'object' ? turno.usuario.nombre : turno.usuario}</p>
+                          <p className="turno-tipo">{turno.tipo_cita} - {formatTime(turno.fecha_cita)}</p>
+                        </div>
+                      </div>
                       <button
                         onClick={() => handleEstadoChange(turno.id, 'En progreso')}
-                        className="action-button"
+                        className="btn-atender"
                       >
                         Atender
                       </button>
@@ -155,28 +204,132 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                   ))}
                 </ul>
               ) : (
-                <p>No hay turnos en espera.</p>
+                <div className="no-turnos">
+                  <p>No hay pacientes en espera</p>
+                </div>
               )}
             </div>
-          </div>
+          </section>
 
-          <div className="dashboard-card punto-atencion">
-            <h3>Punto de Atención</h3>
-            <div className="map-container">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31862.39117719055!2d-76.56485070755377!3d3.399190280820112!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e30a16339317a83%3A0x16bb00e43b737e69!2sIPS%20Melendez!5e0!3m2!1ses!2sco!4v1744311909764!5m2!1ses!2sco"
-                width="100%"
-                height="200"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Ubicación de la Universidad del Valle - Sede Meléndez"
-              ></iframe>
+          <section className="dashboard-secondary">
+            <div className="card punto-atencion-card">
+              <h2><FaMapMarkerAlt /> Punto de Atención</h2>
+              <div className="map-container">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31862.39117719055!2d-76.56485070755377!3d3.399190280820112!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e30a16339317a83%3A0x16bb00e43b737e69!2sIPS%20Melendez!5e0!3m2!1ses!2sco!4v1744311909764!5m2!1ses!2sco"
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Ubicación IPS Meléndez"
+                ></iframe>
+              </div>
+              <div className="location-info">
+                <p><strong>Dirección:</strong> Calle 36 #83-100, Barrio Meléndez</p>
+                <p><strong>Teléfono:</strong> (602) 318-2000</p>
+              </div>
             </div>
-          </div>
 
-          <EstadisticasGraficas />
+            <div className="card resumen-card">
+              <h2><FaClock /> Resumen del Día</h2>
+              <div className="stats-container">
+                <div className="stat-item">
+                  <div className="stat-value">{turnosEnEspera.length}</div>
+                  <div className="stat-label">En espera</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{turnosCompletados.length}</div>
+                  <div className="stat-label">Atendidos</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{turnosCancelados.length}</div>
+                  <div className="stat-label">Cancelados</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{turnos.length}</div>
+                  <div className="stat-label">Total</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-analytics">
+            <div className="card graficas-card">
+              <h2>Estadísticas</h2>
+              <EstadisticasGraficas turnos={turnosParaGraficas} />
+            </div>
+          </section>
+
+          <section className="all-turnos-section">
+            <div className="card all-turnos-card">
+              <div className="turnos-header">
+                <h2>Todos los Turnos</h2>
+                <div className="filter-controls">
+                  <select 
+                    value={filterEstado} 
+                    onChange={(e) => setFilterEstado(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">Todos</option>
+                    <option value="En espera">En espera</option>
+                    <option value="En progreso">En progreso</option>
+                    <option value="Atendido">Atendidos</option>
+                    <option value="Cancelado">Cancelados</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="turnos-table-container">
+                <table className="turnos-table">
+                  <thead>
+                    <tr>
+                      <th>Número</th>
+                      <th>Paciente</th>
+                      <th>Tipo</th>
+                      <th>Hora</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTurnos.length > 0 ? (
+                      filteredTurnos.map(turno => (
+                        <tr key={turno.id} className={turno.prioridad === 'P' ? 'prioritario-row' : ''}>
+                          <td className="numero-column">
+                            {turno.numero}
+                            {turno.prioridad === 'P' && <MdPriorityHigh className="priority-icon" />}
+                          </td>
+                          <td>{typeof turno.usuario === 'object' ? turno.usuario.nombre : turno.usuario}</td>
+                          <td>{turno.tipo_cita}</td>
+                          <td>{formatTime(turno.fecha_cita)}</td>
+                          <td>
+                            <span className={`estado-badge estado-${turno.estado.toLowerCase().replace(' ', '-')}`}>
+                              {turno.estado}
+                            </span>
+                          </td>
+                          <td>
+                            <select
+                              value={turno.estado}
+                              onChange={(e) => handleEstadoChange(turno.id, e.target.value)}
+                              className="table-estado-select"
+                            >
+                              <option value="En espera">En espera</option>
+                              <option value="En progreso">En progreso</option>
+                              <option value="Atendido">Atendido</option>
+                              <option value="Cancelado">Cancelado</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="no-data-cell">No hay turnos que mostrar</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
         </div>
       )}
     </div>

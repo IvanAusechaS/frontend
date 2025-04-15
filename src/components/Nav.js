@@ -109,13 +109,13 @@ const Nav = ({ user, setUser }) => {
                   </div>
                 )}
               </div>
-              <button className="nav-menu-item" onClick={handleLogout}>
+              <button className="nav-menu-item nav-logout" onClick={handleLogout}>
                 Cerrar Sesión
               </button>
             </>
           ) : (
             <button
-              className="nav-menu-item"
+              className="nav-menu-item nav-login"
               onClick={() => {
                 navigate('/login');
                 setIsOpen(false);

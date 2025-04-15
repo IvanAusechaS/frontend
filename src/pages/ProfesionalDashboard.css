@@ -1,351 +1,610 @@
-.profesional-dashboard {
-  min-height: 100vh;
-  width: 100%;
-  background-color: #f4f6f9;
+/* Variables globales */
+:root {
+  --primary: #2c6ecb;
+  --primary-light: #e8f0fd;
+  --primary-dark: #1d4b8f;
+  --accent: #28a745;
+  --accent-light: #d4edda;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --danger-light: #f8d7da;
+  --text-dark: #333;
+  --text-muted: #6c757d;
+  --text-light: #f8f9fa;
+  --border-color: #dee2e6;
+  --background: #f8f9fa;
+  --card-bg: #ffffff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* Reset y estilos generales */
+* {
   margin: 0;
-  padding: 20px;
+  padding: 0;
   box-sizing: border-box;
-  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  background-color: var(--background);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.profesional-dashboard {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dashboard-title {
   font-size: 24px;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.dashboard-loading,
-.dashboard-error {
-  font-size: 16px;
-  text-align: center;
-  margin: 20px 0;
-  color: #e74c3c;
-}
-
-.dashboard-grid {
+  color: var(--primary-dark);
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.top-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-@media (min-width: 769px) {
-  .top-section {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .turno-actual,
-  .turnos-espera {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-.dashboard-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  box-sizing: border-box;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.turno-actual,
-.turnos-espera,
-.punto-atencion {
-  min-height: 200px;
-}
-
-.punto-atencion {
-  min-height: 250px;
-}
-
-/* Estilo mejorado para Turno Actual */
-.turno-actual {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: white;
-  border: none;
-  position: relative;
-  overflow: hidden;
-}
-
-.turno-actual h3 {
-  color: white;
-  font-size: 20px;
-  margin-bottom: 15px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 5px;
-}
-
-.turno-actual .turno-details {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 10px;
-  backdrop-filter: blur(5px);
-}
-
-.turno-actual .turno-details p {
-  margin: 8px 0;
-  font-size: 14px;
-  color: white;
-}
-
-.turno-actual .turno-details p strong {
-  color: #ecf0f1;
-}
-
-.turno-actual .estado-select {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 4px;
-  border: none;
-  font-size: 14px;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: #ecf0f1;
-  color: #2c3e50;
-  cursor: pointer;
-}
-
-.turno-actual .estado-select:hover {
-  background-color: #dfe6e9;
-}
-
-/* Estilo mejorado para Turnos en Cola */
-.turnos-espera {
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-  color: white;
-  border: none;
-  position: relative;
-  overflow: hidden;
-}
-
-.turnos-espera h3 {
-  color: white;
-  font-size: 20px;
-  margin-bottom: 15px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 5px;
-}
-
-.turnos-espera .turno-list {
-  list-style: none;
-  padding: 0;
-  max-height: 150px;
-  overflow-y: auto;
-  width: 100%;
-}
-
-.turnos-espera .turno-item {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  color: var(--primary);
+}
+
+.profesional-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.user-icon {
+  background-color: var(--primary-light);
+  color: var(--primary);
   padding: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 14px;
-  flex-wrap: wrap;
-  gap: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  margin-bottom: 5px;
-  transition: background 0.2s ease;
+  border-radius: 50%;
 }
 
-.turnos-espera .turno-item:hover {
-  background: rgba(255, 255, 255, 0.2);
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
 }
 
-.turnos-espera .turno-item span {
-  color: white;
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid var(--primary);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
 }
 
-.turnos-espera .action-button {
-  background-color: #f1c40f;
-  color: #2c3e50;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.turnos-espera .action-button:hover {
-  background-color: #f39c12;
+/* Error alert */
+.error-alert {
+  background-color: var(--danger-light);
+  color: var(--danger);
+  padding: 12px 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-weight: 500;
 }
 
-/* Resto del CSS sin cambios */
-.map-container {
+/* Dashboard Layout */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   width: 100%;
-  height: 200px;
-  overflow: hidden;
 }
 
-.map-container iframe {
-  width: 100%;
+/* Cards generales */
+.card {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 20px;
   height: 100%;
 }
 
-.estadisticas-graficas {
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Primera fila */
+.dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 20px;
   width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
-.chart-container {
+/* Segunda fila - Resumen combinado con gráficas */
+.dashboard-secondary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
   width: 100%;
-  max-width: 100%;
-  height: 300px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  box-sizing: border-box;
 }
 
-.chart-container canvas {
-  max-width: 100%;
-  width: 100% !important;
-  height: 100% !important;
+.resumen-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.turno-details p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #2c3e50;
-  word-wrap: break-word;
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 10px;
 }
 
-.estado-select {
+/* Turno actual */
+.turno-actual-card {
+  border-left: 4px solid var(--primary);
+}
+
+.turno-actual-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+.numero-turno {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  min-width: 100px;
+  text-align: center;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--primary-light);
+}
+
+.turno-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.turno-info p {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prioridad {
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.turno-actions {
   margin-top: 10px;
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 14px;
   width: 100%;
-  box-sizing: border-box;
 }
 
-.turno-list {
+.no-turno {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  background-color: var(--primary-light);
+  border-radius: 8px;
+  color: var(--primary-dark);
+  font-weight: 500;
+}
+
+/* Sala de espera */
+.turnos-espera-card {
+  border-left: 4px solid var(--accent);
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background-color: var(--accent);
+  color: white;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.turnos-list {
   list-style: none;
-  padding: 0;
-  max-height: 150px;
+  max-height: 300px;
   overflow-y: auto;
-  width: 100%;
 }
 
 .turno-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.turno-item:last-child {
+  border-bottom: none;
+}
+
+.turno-item:hover {
+  background-color: var(--primary-light);
+}
+
+.turno-item.prioritario {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid var(--warning);
+}
+
+.turno-info-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.turno-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-radius: 5px;
+  font-weight: 700;
+}
+
+.turno-detalles {
+  flex: 1;
+}
+
+.turno-paciente {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.turno-tipo {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.btn-atender {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btn-atender:hover {
+  background-color: var(--primary-dark);
+}
+
+.no-turnos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  background-color: var(--background);
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+
+/* Punto de atención */
+.punto-atencion-card {
+  border-left: 4px solid var(--warning);
+}
+
+.map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  height: 200px;
+  margin-bottom: 15px;
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.location-info p {
+  margin-bottom: 8px;
+}
+
+/* Stats del día */
+.stat-item {
+  background-color: var(--primary-light);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-label {
   font-size: 14px;
-  flex-wrap: wrap;
+  color: var(--text-muted);
+}
+
+/* Gráficas */
+.graficas-card {
+  border-left: 4px solid var(--accent);
+}
+
+/* Integración de gráficas en el resumen */
+.resumen-graficas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Todos los turnos */
+.all-turnos-section {
+  width: 100%;
+}
+
+.turnos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-select, .estado-select, .table-estado-select {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.filter-select:focus, .estado-select:focus, .table-estado-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(44, 110, 203, 0.2);
+}
+
+.turnos-table-container {
+  overflow-x: auto;
+}
+
+.turnos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.turnos-table th {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 15px;
+}
+
+.turnos-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.turnos-table tr:last-child td {
+  border-bottom: none;
+}
+
+.turnos-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.prioritario-row {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.prioritario-row:hover {
+  background-color: rgba(255, 193, 7, 0.15);
+}
+
+.numero-column {
+  display: flex;
+  align-items: center;
   gap: 5px;
 }
 
-.action-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 5px 10px;
+.priority-icon {
+  color: var(--warning);
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 4px 8px;
   border-radius: 4px;
-  cursor: pointer;
   font-size: 12px;
-  flex-shrink: 0;
+  font-weight: 500;
 }
 
-.action-button:hover {
-  background-color: #2980b9;
+.estado-en-espera {
+  background-color: var(--primary-light);
+  color: var(--primary);
 }
 
-@media (max-width: 768px) {
+.estado-en-progreso {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #856404;
+}
+
+.estado-atendido {
+  background-color: var(--accent-light);
+  color: var(--accent);
+}
+
+.estado-cancelado {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+
+.no-data-cell {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 30px 0;
+}
+
+/* Dashboard Analytics - Combinado con resumen */
+.dashboard-analytics {
+  margin-top: 0;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .turno-info {
+    width: 100%;
+  }
+  
+  .punto-atencion-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-cards,
+  .dashboard-secondary {
+    grid-template-columns: 1fr;
+  }
+  
+  .punto-atencion-card {
+    grid-column: span 1;
+  }
+  
+  .turno-actual-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .numero-turno {
+    margin: 0 auto;
+  }
+  
+  .turno-actions {
+    width: 100%;
+  }
+  
+  .estado-select {
+    width: 100%;
+  }
+  
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .turnos-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .filter-controls {
+    width: 100%;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
   .profesional-dashboard {
     padding: 10px;
   }
-
-  .dashboard-grid {
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 15px;
   }
-
-  .dashboard-card {
-    min-height: 180px;
-    padding: 10px;
-  }
-
-  .turno-actual,
-  .turnos-espera,
-  .punto-atencion {
-    min-height: 200px;
-  }
-
-  .punto-atencion {
-    min-height: 220px;
-  }
-
-  .map-container {
-    height: 150px;
-  }
-
-  .estadisticas-graficas {
+  
+  .stats-container {
     grid-template-columns: 1fr;
   }
-
-  .chart-container {
-    height: 200px;
-  }
-
-  .turno-details p,
-  .estado-select,
+  
   .turno-item {
-    font-size: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-
-  .action-button {
-    padding: 3px 8px;
-    font-size: 10px;
+  
+  .turno-info-container {
+    width: 100%;
   }
-
-  .turno-list {
-    max-height: 120px;
+  
+  .btn-atender {
+    width: 100%;
   }
-}
-.turno-actual .turno-details p svg {
-  vertical-align: middle;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.turno-actual,
-.turnos-espera {
-  animation: fadeIn 0.5s ease-in-out;
 }

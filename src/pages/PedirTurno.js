@@ -9,7 +9,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [puntosServicios, setPuntosServicios] = useState({});
   const [selectedPunto, setSelectedPunto] = useState('');
   const [tipoCita, setTipoCita] = useState('');
-  const [hasDisability, setHasDisability] = useState(null);  // null, 'yes', 'no'
+  const [hasDisability, setHasDisability] = useState(null);
   const [disabilityType, setDisabilityType] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -18,6 +18,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
   useEffect(() => {
+    console.log('Usuario en PedirTurno:', user); // Añadir este log
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -29,7 +30,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         const turnosData = await getCurrentTurnos();
         setCurrentTurnos(turnosData.current_turnos || {});
         setEstimatedTime(turnosData.estimated_times || {});
-
+  
         const puntosData = await getPuntosAtencionServices();
         setPuntosServicios(puntosData);
         setSelectedPunto(Object.keys(puntosData)[0] || '');
@@ -64,6 +65,11 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setError('Por favor, selecciona el tipo de discapacidad.');
       return;
     }
+    if (!user.id) {
+      setError('Usuario no autenticado. Por favor, inicia sesión.');
+      setTimeout(() => navigate('/login'), 2000);
+      return;
+    }
     setError('');
     setSuccess('');
     try {
@@ -72,7 +78,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         tipo_cita: tipoCita,
         prioridad: hasDisability === 'yes' ? 'P' : 'N',
       };
-      const newTurno = await createTurno(turnoData);
+      const newTurno = await createTurno(turnoData, user.id); // Pasar user.id
       const puntoNombre = puntosServicios[selectedPunto].nombre;
       setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
       setTipoCita('');
@@ -94,94 +100,143 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   return (
     <div className="pedir-turno-page">
       <div className="pedir-turno-container">
-        <h2 className="pedir-turno-title">Solicitar Turno - Día Actual</h2>
-        {error && <p className="pedir-turno-error">{error}</p>}
-        {success && <p className="pedir-turno-success">{success}</p>}
+        <header className="pedir-turno-header">
+          <h1 className="pedir-turno-title"></h1>
+        </header>
 
-        <div className="punto-selector">
-          <label className="pedir-turno-label">Punto de Atención:</label>
-          <select
-            value={selectedPunto}
-            onChange={(e) => {
-              setSelectedPunto(e.target.value);
-              setTipoCita('');
-            }}
-            className="pedir-turno-input"
-          >
-            <option value="">Selecciona un punto</option>
-            {Object.entries(puntosServicios).map(([id, punto]) => (
-              <option key={id} value={id}>{punto.nombre}</option>
-            ))}
-          </select>
-        </div>
-
-        {selectedPunto && (
-          <>
-            <div className="current-turnos">
-              <div className="turno-info">
-                <h3>{puntosServicios[selectedPunto].nombre}</h3>
-                <p>Turno Actual: {currentTurnos[selectedPunto] || 'Ninguno'}</p>
-                <p>Tiempo Estimado: {estimatedTime[selectedPunto] || 0} minutos</p>
-              </div>
-            </div>
-
-            <div className="service-selector">
-              <label className="pedir-turno-label">Tipo de Servicio:</label>
-              <select
-                value={tipoCita}
-                onChange={(e) => setTipoCita(e.target.value)}
-                className="pedir-turno-input"
-              >
-                <option value="">Selecciona un servicio</option>
-                {puntosServicios[selectedPunto].servicios.map((servicio, index) => (
-                  <option key={index} value={servicio.toLowerCase()}>{servicio}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="disability-selector">
-              <label className="pedir-turno-label">¿Tienes alguna discapacidad?</label>
-              <div className="disability-buttons">
-                <button
-                  className={`disability-button ${hasDisability === 'yes' ? 'selected' : ''}`}
-                  onClick={() => setHasDisability('yes')}
-                >
-                  Sí
-                </button>
-                <button
-                  className={`disability-button ${hasDisability === 'no' ? 'selected' : ''}`}
-                  onClick={() => { setHasDisability('no'); setDisabilityType(''); }}
-                >
-                  No
-                </button>
-              </div>
-              {hasDisability === 'yes' && (
-                <select
-                  value={disabilityType}
-                  onChange={(e) => setDisabilityType(e.target.value)}
-                  className="pedir-turno-input"
-                >
-                  <option value="">Selecciona el tipo</option>
-                  {disabilityOptions.map((option, index) => (
-                    <option key={index} value={option.toLowerCase()}>{option}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <button className="request-button" onClick={handleRequestTurno}>
-              Solicitar Turno
-            </button>
-          </>
+        {error && (
+          <div className="pedir-turno-error">
+            <p>{error}</p>
+          </div>
+        )}
+        
+        {success && (
+          <div className="pedir-turno-success">
+            <p>{success}</p>
+          </div>
         )}
 
-        <div className="advertisement">
-          <h3>Publicidad</h3>
-          <img
-            src="https://media.giphy.com/media/3o7TKz9bDaN3jksX6o/giphy.gif"
-            alt="Publicidad"
-            className="ad-gif"
-          />
+        <div className="turno-grid">
+          {/* Left Column - Selection Options */}
+          <div className="turno-options">
+            <div className="options-container">
+              <h2 className="section-title">Seleccionar Servicio</h2>
+              
+              <div className="form-group">
+                <label className="form-label">Punto de Atención:</label>
+                <select
+                  value={selectedPunto}
+                  onChange={(e) => {
+                    setSelectedPunto(e.target.value);
+                    setTipoCita('');
+                  }}
+                  className="form-select"
+                >
+                  <option value="">Selecciona un punto</option>
+                  {Object.entries(puntosServicios).map(([id, punto]) => (
+                    <option key={id} value={id}>{punto.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedPunto && (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">Tipo de Servicio:</label>
+                    <select
+                      value={tipoCita}
+                      onChange={(e) => setTipoCita(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="">Selecciona un servicio</option>
+                      {puntosServicios[selectedPunto].servicios.map((servicio, index) => (
+                        <option key={index} value={servicio.toLowerCase()}>{servicio}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">¿Tienes alguna discapacidad?</label>
+                    <div className="disability-buttons">
+                      <button
+                        type="button"
+                        onClick={() => setHasDisability('yes')}
+                        className={`disability-button ${hasDisability === 'yes' ? 'selected' : ''}`}
+                      >
+                        Sí
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setHasDisability('no'); setDisabilityType(''); }}
+                        className={`disability-button ${hasDisability === 'no' ? 'selected' : ''}`}
+                      >
+                        No
+                      </button>
+                    </div>
+
+                    {hasDisability === 'yes' && (
+                      <select
+                        value={disabilityType}
+                        onChange={(e) => setDisabilityType(e.target.value)}
+                        className="form-select disability-select"
+                      >
+                        <option value="">Selecciona el tipo</option>
+                        {disabilityOptions.map((option, index) => (
+                          <option key={index} value={option.toLowerCase()}>{option}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Current Turn Display */}
+          <div className="turno-display">
+            {selectedPunto ? (
+              <div className="display-container">
+                <h2 className="punto-name">
+                  {puntosServicios[selectedPunto].nombre}
+                </h2>
+                
+                <div className="turn-info-grid">
+                  <div className="turn-info-box">
+                    <p className="turn-info-label">TURNO ACTUAL</p>
+                    <p className="turn-info-value">{currentTurnos[selectedPunto] || "---"}</p>
+                  </div>
+                  
+                  <div className="turn-info-box">
+                    <p className="turn-info-label">TIEMPO ESTIMADO</p>
+                    <p className="turn-info-value">{estimatedTime[selectedPunto] || "0"} <span className="minute-label">min</span></p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRequestTurno}
+                  className="request-button"
+                >
+                  SOLICITAR TURNO
+                </button>
+              </div>
+            ) : (
+              <div className="empty-display">
+                <p>Selecciona un punto de atención para ver la información actual</p>
+              </div>
+            )}
+
+            {/* Advertisement Section */}
+            <div className="advertisement-section">
+              <h3 className="ad-title">Publicidad</h3>
+              <div className="ad-container">
+                <img 
+                  src="https://via.placeholder.com/800x450"
+                  alt="Publicidad" 
+                  className="ad-image"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

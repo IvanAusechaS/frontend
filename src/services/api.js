@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+
 const API_URL = 'http://127.0.0.1:8000/tickets/';
 
 // Configura una instancia de axios con headers por defecto
@@ -93,13 +94,19 @@ export const getCurrentTurnos = async () => {
   }
 };
 
-export const createTurno = async (turnoData) => {
+export const createTurno = async (turnoData, userId) => {
   try {
     console.log('Datos enviados a /turnos/:', turnoData);
+    if (!userId) {
+      throw new Error('No se proporcionó el ID del usuario');
+    }
+    // Crear la fecha en la zona horaria local (por ejemplo, UTC-5 para Colombia)
+    const fechaCita = new Date('2025-04-11T14:00:00-05:00').toISOString(); // 14:00 en UTC-5
     const response = await api.post('turnos/', {
       punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
-      prioridad: turnoData.prioridad || 'N',  // Por defecto 'N' si no se especifica
+      prioridad: turnoData.prioridad || 'N',
+      fecha_cita: fechaCita
     });
     console.log('Turno creado:', response.data);
     return response.data;
@@ -124,6 +131,14 @@ export const loginUser = async (email, password) => {
   try {
     const response = await api.post('login/', { email, password });
     console.log('Respuesta de login:', response.data);
+    if (!response.data.user || !response.data.user.id) {
+      console.error('ID del usuario no encontrado en la respuesta del login');
+      throw new Error('ID del usuario no encontrado');
+    }
+    localStorage.setItem('userId', response.data.user.id); // Cambiar a response.data.user.id
+    localStorage.setItem('token', response.data.access);
+    localStorage.setItem('refreshToken', response.data.refresh);
+    console.log('userId almacenado:', localStorage.getItem('userId')); // Añadir este log
     return response.data;
   } catch (error) {
     console.error('Error en loginUser:', error.response ? error.response.data : error.message);
@@ -154,13 +169,13 @@ export const registerUser = async (userData) => {
   }
 };
 
-export const updateTurno = async (turnoId, turnoData) => {
+export const updateTurno = async (turnoId, updatedData) => {
   try {
-    const response = await api.put(`turnos/${turnoId}/`, turnoData);
+    const response = await api.put(`turnos/${turnoId}/`, updatedData);
     console.log('Turno actualizado:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error en updateTurno:', error.response ? error.response.data : error.message);
+    console.error('Error al actualizar turno:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
