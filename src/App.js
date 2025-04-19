@@ -1,21 +1,24 @@
-// frontend/src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './pages/Login';
-import PedirTurno from './pages/PedirTurno';
-import ProfesionalDashboard from './pages/ProfesionalDashboard';
-import Home from './pages/Home';
-import Register from './pages/Register';
-import Header from './components/Header'; // Reemplaza Nav con Header
-import Footer from './components/Footer';
-import CompleteProfile from './pages/CompleteProfile';
-import ChangePassword from './pages/ChangePassword';
-import ResetPassword from './pages/ResetPassword';
-import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
-import Contact from './pages/Contact';
-import AppointmentHistory from './pages/AppointmentHistory';
-import Profile from './pages/Profile';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import styles
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import Home from './pages/General/Home';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
+import ResetPasswordConfirm from './pages/Auth/ResetPasswordConfirm'; 
+import ChangePassword from './pages/Auth/ChangePassword';
+import Profile from './pages/User/Profile';
+import CompleteProfile from './pages/User/CompleteProfile';
+import PedirTurno from './pages/Appointments/PedirTurno';
+import AppointmentHistory from './pages/Appointments/AppointmentHistory';
+import ProfesionalDashboard from './pages/Dashboard/ProfesionalDashboard';
+import EstadisticasGraficas from './pages/Dashboard/EstadisticasGraficas';
+import Contact from './pages/General/Contact';
+import './styles/global.css';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -60,37 +63,56 @@ const App = () => {
 
   console.log('Usuario actual en App antes de render:', user);
 
-  const SafeRoute = ({ user, setUser, element }) => {
+  const SafeRoute = ({ component: Component, ...rest }) => {
     try {
-      return element;
+      return <Component user={user} setUser={setNormalizedUser} {...rest} />;
     } catch (e) {
       console.error('Error al renderizar ruta:', e);
-      return <div>Error al cargar la página</div>;
+      return (
+        <div className="error-container">
+          <h2>Error al cargar la página</h2>
+          <p>{e.message}</p>
+        </div>
+      );
     }
   };
+
+  const routes = [
+    { path: '/', component: Home, exact: true },
+    { path: '/login', component: Login },
+    { path: '/register', component: Register },
+    { path: '/forgot-password', component: ForgotPassword },
+    { path: '/reset-password', component: ResetPassword },
+    { path: '/reset-password-confirm', component: ResetPasswordConfirm }, 
+    { path: '/change-password', component: ChangePassword },
+    { path: '/profile', component: Profile },
+    { path: '/complete-profile', component: CompleteProfile },
+    { path: '/pedir-turno', component: PedirTurno },
+    { path: '/appointment-history', component: AppointmentHistory },
+    { path: '/profesional', component: ProfesionalDashboard }, 
+    { path: '/estadisticas-graficas', component: EstadisticasGraficas },
+    { path: '/contact', component: Contact },
+  ];
 
   return (
     <Router>
       <div className="app-container">
-        <Header user={user} setUser={setNormalizedUser} /> {/* Reemplaza Nav con Header */}
+        <Header user={user} setUser={setNormalizedUser} />
         <main className="main-content">
-        {console.log('Renderizando Routes con user:', user)}
+          {console.log('Renderizando Routes con user:', user)}
           <Routes>
-            <Route path="/" element={<SafeRoute user={user} setUser={setNormalizedUser} element={<Home user={user} setUser={setNormalizedUser} />} />} />
-            <Route path="/pedir-turno" element={<SafeRoute user={user} setUser={setNormalizedUser} element={<PedirTurno user={user} setUser={setNormalizedUser} />} />} />
-            <Route path="/login" element={<Login setUser={setNormalizedUser} />} />
-            <Route path="/profesional" element={<ProfesionalDashboard user={user} setUser={setNormalizedUser} />} />
-            <Route path="/register" element={<Register setUser={setNormalizedUser} />} />
-            <Route path="/complete-profile" element={<CompleteProfile setUser={setNormalizedUser} />} />
-            <Route path="/change-password" element={<ChangePassword user={user} setUser={setNormalizedUser} />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/reset-password-confirm" element={<ResetPasswordConfirm />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/appointment-history" element={<AppointmentHistory user={user} setUser={setNormalizedUser} />} />
-            <Route path="/profile" element={<Profile user={user} setUser={setNormalizedUser} />} />
+            {routes.map(({ path, component, exact }) => (
+              <Route
+                key={path}
+                path={path}
+                exact={exact}
+                element={<SafeRoute component={component} />}
+              />
+            ))}
           </Routes>
         </main>
         <Footer />
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} /> {/* Add ToastContainer */}
       </div>
     </Router>
   );

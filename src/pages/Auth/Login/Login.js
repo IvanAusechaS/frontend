@@ -1,42 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import useAuth from '../../../hooks/useAuth';
 import './Login.css';
-
-const API_URL = 'http://localhost:8000/tickets/';
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const { login, error } = useAuth();
   const navigate = useNavigate();
-
-  // Normaliza el user al formato {id, cedula, email, nombre, es_profesional}
-  const normalizeUser = (userData) => {
-    return {
-      id: userData.id,
-      cedula: userData.cedula || '',
-      email: userData.email || '',
-      nombre: userData.nombre || 'Usuario',
-      es_profesional: userData.es_profesional || false
-    };
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(`${API_URL}login/`, { email, password });
-      const { access, refresh, user } = response.data;
-      const normalizedUser = normalizeUser(user);
-      localStorage.setItem('token', access);
-      localStorage.setItem('refreshToken', refresh);
-      localStorage.setItem('user', JSON.stringify(normalizedUser));
-      setUser(normalizedUser);
-      navigate('/');
-    } catch (err) {
-      setError('Credenciales inválidas');
-      console.error('Error en login:', err.response?.data || err.message);
-    }
+    await login(email, password, setUser);
   };
 
   const handleRegisterRedirect = () => navigate('/register');

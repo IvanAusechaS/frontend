@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTurnos, updateTurno } from '../services/api';
+import { getTurnos, updateTurno } from '../../../services/api';
 import './ProfesionalDashboard.css';
 import { FaUser, FaCalendarAlt, FaStethoscope, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdPriorityHigh } from 'react-icons/md';
-import EstadisticasGraficas from './EstadisticasGraficas';
+import EstadisticasGraficas from '../EstadisticasGraficas/EstadisticasGraficas';
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
@@ -71,16 +71,23 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    const offsetColombia = -5 * 60; // UTC-5 en minutos
-    const dateColombia = new Date(date.getTime() + offsetColombia * 60 * 1000);
-    return `${dateColombia.toLocaleDateString('es-CO')} ${dateColombia.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`;
+    return date.toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    const offsetColombia = -5 * 60; // UTC-5 en minutos
-    const dateColombia = new Date(date.getTime() + offsetColombia * 60 * 1000);
-    return dateColombia.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const turnoActual = turnos.find(turno => turno.estado === 'En progreso') ||
@@ -99,22 +106,20 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const turnosCompletados = turnos.filter(turno => turno.estado === 'Atendido');
   const turnosCancelados = turnos.filter(turno => turno.estado === 'Cancelado');
 
-  // Filtrar turnos para el día actual y horario laboral
+  // Filtrar turnos para el día actual
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const turnosParaGraficas = turnos.filter(turno => {
     const fechaUTC = new Date(turno.fecha_cita);
-    const offsetColombia = -5 * 60;
-    const fechaColombia = new Date(fechaUTC.getTime() + offsetColombia * 60 * 1000);
+    const fechaColombia = new Date(fechaUTC.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
     const fechaTurno = new Date(fechaColombia);
     fechaTurno.setHours(0, 0, 0, 0);
   
     const esHoy = fechaTurno.getTime() === today.getTime();
-    return esHoy; // Eliminar la restricción de horario
+    return esHoy;
   });
   
-  // Filtrar la lista de todos los turnos
   const getFilteredTurnos = () => {
     if (filterEstado === 'all') return turnos;
     return turnos.filter(turno => turno.estado === filterEstado);

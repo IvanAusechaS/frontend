@@ -356,3 +356,15 @@
     font-size: 1.4rem;
   }
 }
+.time-info {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.time-info p {
+  margin: 0;
+}

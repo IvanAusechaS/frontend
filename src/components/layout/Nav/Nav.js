@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logoutUser } from '../services/api'; // Importar logoutUser
+import { logoutUser } from '../../../services/api'; // Importar logoutUser
 import './Nav.css';
 
 const Nav = ({ user, setUser }) => {

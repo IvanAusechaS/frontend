@@ -1,7 +1,7 @@
 // frontend/src/pages/CompleteProfile.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // Importa api como exportación por defecto
+import api from '../../../services/api';
 import './CompleteProfile.css';
 
 const CompleteProfile = ({ setUser }) => {

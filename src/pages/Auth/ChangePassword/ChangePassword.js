@@ -1,7 +1,7 @@
 // frontend/src/pages/ChangePassword.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api from '../../../services/api';
 import './ChangePassword.css';
 
 const ChangePassword = ({ user, setUser }) => {

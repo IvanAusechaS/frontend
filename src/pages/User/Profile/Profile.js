@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api from '../../../services/api';
 import './Profile.css';
 
 const Profile = ({ user, setUser }) => {
@@ -164,7 +164,7 @@ const Profile = ({ user, setUser }) => {
           <div className="no-appointments">
             <p>No tienes citas programadas actualmente.</p>
             <button 
-              onClick={() => navigate('/nueva-cita')} 
+              onClick={() => navigate('/pedir-turno')} // Updated path
               className="profile-button schedule-button"
             >
               Programar una cita

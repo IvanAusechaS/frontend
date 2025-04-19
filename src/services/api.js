@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const API_URL = 'http://127.0.0.1:8000/tickets/';
+const API_URL = 'http://127.0.0.1:8000/api/tickets/';
 
 // Configura una instancia de axios con headers por defecto
 const api = axios.create({
@@ -100,13 +100,10 @@ export const createTurno = async (turnoData, userId) => {
     if (!userId) {
       throw new Error('No se proporcionó el ID del usuario');
     }
-    // Crear la fecha en la zona horaria local (por ejemplo, UTC-5 para Colombia)
-    const fechaCita = new Date('2025-04-11T14:00:00-05:00').toISOString(); // 14:00 en UTC-5
     const response = await api.post('turnos/', {
       punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
       prioridad: turnoData.prioridad || 'N',
-      fecha_cita: fechaCita
     });
     console.log('Turno creado:', response.data);
     return response.data;

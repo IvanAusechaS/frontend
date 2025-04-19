@@ -1,6 +1,6 @@
 // frontend/src/components/Header.js
 import React, { useEffect } from 'react';
-import Nav from './Nav';
+import Nav from '../Nav';
 import './Header.css';
 
 const Header = ({ user, setUser }) => {
