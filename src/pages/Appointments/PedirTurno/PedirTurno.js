@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../../../services/api';
+import { getCurrentTurnos, createTurno, getServicios } from '../../../services/api';
 import './PedirTurno.css';
 
 const PedirTurno = ({ user: userProp, setUser }) => {
   const [currentTurnos, setCurrentTurnos] = useState({});
-  const [estimatedTime, setEstimatedTime] = useState({});
-  const [puntosServicios, setPuntosServicios] = useState({});
-  const [selectedPunto, setSelectedPunto] = useState('');
-  const [tipoCita, setTipoCita] = useState('');
+  //const [estimatedTime, setEstimatedTime] = useState({});
+  //const [puntosServicios, setPuntosServicios] = useState({});
+  //const [selectedPunto, setSelectedPunto] = useState('');
+  const [servicios, setServicios] = useState([]);
+  const [tipoCita, setTipoCita] = useState(''); 
   const [fechaCita, setFechaCita] = useState(''); // New state for fecha_cita
   const [hasDisability, setHasDisability] = useState(null);
   const [disabilityType, setDisabilityType] = useState('');
@@ -16,7 +17,8 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
+  const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);// se agrega userProp para evitar warning de dependencias
+  //const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
 
   useEffect(() => {
     console.log('Usuario en PedirTurno:', user);
@@ -30,12 +32,13 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         }
         const turnosData = await getCurrentTurnos();
         setCurrentTurnos(turnosData.current_turnos || {});
-        setEstimatedTime(turnosData.estimated_times || {});
+        //setEstimatedTime(turnosData.estimated_times || {});
 
-        const puntosData = await getPuntosAtencionServices();
-        setPuntosServicios(puntosData);
-        setSelectedPunto(Object.keys(puntosData)[0] || '');
-      } catch (err) {
+        //obtiene servicios disponibles
+        const serviciosData = await getServicios(); // Asegúrate de que esta API devuelva los servicios
+        setServicios(serviciosData || []); // Asigna los servicios al estado
+
+        } catch (err) {
         setError('Error al cargar datos: ' + (err.response?.data?.detail || err.message));
         if (err.response?.status === 401) {
           localStorage.clear();
@@ -47,19 +50,11 @@ const PedirTurno = ({ user: userProp, setUser }) => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, [navigate, setUser, user.id]);
+  }, [navigate, setUser, user, user.id]);//se agrega user.id para evitar warning de dependencias
 
   const handleRequestTurno = async () => {
-    if (!selectedPunto) {
-      setError('Por favor, selecciona un punto de atención.');
-      return;
-    }
     if (!tipoCita) {
       setError('Por favor, selecciona un tipo de servicio.');
-      return;
-    }
-    if (!fechaCita) {
-      setError('Por favor, selecciona la fecha y hora de la cita.');
       return;
     }
     if (hasDisability === null) {
@@ -80,38 +75,41 @@ const PedirTurno = ({ user: userProp, setUser }) => {
     try {
       // Convert the local datetime to UTC
       const localDate = new Date(fechaCita);
-      const utcDate = localDate.toISOString(); // Converts to UTC with Z suffix (e.g., "2025-04-19T20:00:00.000Z")
-
+      //const utcDate = localDate.toISOString(); // Converts to UTC with Z suffix (e.g., "2025-04-19T20:00:00.000Z")
+    
       const turnoData = {
-        punto_atencion: parseInt(selectedPunto),
+        //punto_atencion: parseInt(selectedPunto),
+        punto_atencion_id: null,
         tipo_cita: tipoCita,
-        fecha_cita: utcDate, // Include fecha_cita in the request
+        fecha_cita: localDate, // Include fecha_cita in the request
         prioridad: hasDisability === 'yes' ? 'P' : 'N',
       };
+    
       const newTurno = await createTurno(turnoData, user.id);
-      const puntoNombre = puntosServicios[selectedPunto].nombre;
-      setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
+    
+      //const puntoNombre = puntosServicios[selectedPunto.nombre];
+      //const puntoNombre = puntosServicios?.nombre || 'el punto de atención seleccionado';
+      //setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
+      setSuccess(`Turno ${newTurno.numero} solicitado con éxito.`); // Mensaje de éxito sin usar punto de atención
+    
       setTipoCita('');
       setFechaCita(''); // Reset fechaCita
       setHasDisability(null);
       setDisabilityType('');
       setTimeout(() => navigate('/appointment-history'), 2000);
+    
     } catch (err) {
-      const errorDetail = err.response?.data?.detail || err.response?.data?.fecha_cita?.[0] || 'Error desconocido';
-      if (errorDetail.includes('Los turnos solo pueden ser entre')) {
-        setError('No se puede solicitar un turno en este momento. Los turnos solo están disponibles de 8:00 a 22:00.');
-      } else {
-        setError('Error al solicitar turno: ' + (errorDetail || err.message));
-      }
+      const errorDetail = err.response?.data?.detail || err.response?.data?.fecha?.[0] || 'Error desconocido';
+      setError('Error al solicitar turno: ' + (errorDetail || err.message));
     }
-  };
+  };    
 
-  const disabilityOptions = [
-    'Movilidad Reducida',
-    'Discapacidad Visual',
-    'Discapacidad Auditiva',
-    'Otra',
-  ];
+  // const disabilityOptions = [
+  //   'Movilidad Reducida',
+  //   'Discapacidad Visual',
+  //   'Discapacidad Auditiva',
+  //   'Otra',
+  // ];
 
   return (
     <div className="pedir-turno-page">
@@ -119,160 +117,71 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         <header className="pedir-turno-header">
           <h1 className="pedir-turno-title">Solicitar Turno</h1>
         </header>
-
-        {error && (
-          <div className="pedir-turno-error">
-            <p>{error}</p>
-          </div>
-        )}
-        
-        {success && (
-          <div className="pedir-turno-success">
-            <p>{success}</p>
-          </div>
-        )}
-
-        <div className="turno-grid">
-          {/* Left Column - Selection Options */}
-          <div className="turno-options">
-            <div className="options-container">
-              <h2 className="section-title">Seleccionar Servicio</h2>
-              
-              <div className="time-info">
-                <p>Nota: Los turnos solo pueden ser solicitados entre las 8:00 y las 22:00.</p>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Punto de Atención:</label>
-                <select
-                  value={selectedPunto}
-                  onChange={(e) => {
-                    setSelectedPunto(e.target.value);
-                    setTipoCita('');
-                  }}
-                  className="form-select"
-                >
-                  <option value="">Selecciona un punto</option>
-                  {Object.entries(puntosServicios).map(([id, punto]) => (
-                    <option key={id} value={id}>{punto.nombre}</option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedPunto && (
-                <>
-                  <div className="form-group">
-                    <label className="form-label">Tipo de Servicio:</label>
-                    <select
-                      value={tipoCita}
-                      onChange={(e) => setTipoCita(e.target.value)}
-                      className="form-select"
-                    >
-                      <option value="">Selecciona un servicio</option>
-                      {puntosServicios[selectedPunto].servicios.map((servicio, index) => (
-                        <option key={index} value={servicio.toLowerCase()}>{servicio}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Fecha y Hora de la Cita:</label>
-                    <input
-                      type="datetime-local"
-                      value={fechaCita}
-                      onChange={(e) => setFechaCita(e.target.value)}
-                      className="form-input"
-                      min="2025-04-19T08:00" // Example: restrict to operating hours
-                      max="2025-04-19T22:00"
-                      step="900" // 15-minute intervals
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">¿Tienes alguna discapacidad?</label>
-                    <div className="disability-buttons">
-                      <button
-                        type="button"
-                        onClick={() => setHasDisability('yes')}
-                        className={`disability-button ${hasDisability === 'yes' ? 'selected' : ''}`}
-                      >
-                        Sí
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setHasDisability('no'); setDisabilityType(''); }}
-                        className={`disability-button ${hasDisability === 'no' ? 'selected' : ''}`}
-                      >
-                        No
-                      </button>
-                    </div>
-
-                    {hasDisability === 'yes' && (
-                      <select
-                        value={disabilityType}
-                        onChange={(e) => setDisabilityType(e.target.value)}
-                        className="form-select disability-select"
-                      >
-                        <option value="">Selecciona el tipo</option>
-                        {disabilityOptions.map((option, index) => (
-                          <option key={index} value={option.toLowerCase()}>{option}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column - Current Turn Display */}
-          <div className="turno-display">
-            {selectedPunto ? (
-              <div className="display-container">
-                <h2 className="punto-name">
-                  {puntosServicios[selectedPunto].nombre}
-                </h2>
-                
-                <div className="turn-info-grid">
-                  <div className="turn-info-box">
-                    <p className="turn-info-label">TURNO ACTUAL</p>
-                    <p className="turn-info-value">{currentTurnos[selectedPunto] || "---"}</p>
-                  </div>
-                  
-                  <div className="turn-info-box">
-                    <p className="turn-info-label">TIEMPO ESTIMADO</p>
-                    <p className="turn-info-value">{estimatedTime[selectedPunto] || "0"} <span className="minute-label">min</span></p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleRequestTurno}
-                  className="request-button"
-                >
-                  SOLICITAR TURNO
-                </button>
-              </div>
-            ) : (
-              <div className="empty-display">
-                <p>Selecciona un punto de atención para ver la información actual</p>
-              </div>
-            )}
-
-            <div className="advertisement-section">
-              <h3 className="ad-title">Publicidad</h3>
-              <div className="ad-container">
-                <img 
-                  src="https://via.placeholder.com/800x450"
-                  alt="Publicidad" 
-                  className="ad-image"
-                />
-              </div>
-            </div>
+  
+        {error && <div className="pedir-turno-error"><p>{error}</p></div>}
+        {success && <div className="pedir-turno-success"><p>{success}</p></div>}
+  
+        <div className="form-group">
+          <h3 className="form-label">
+            ¿Tienes más de 61 años, alguna discapacidad, estás embarazada o llevas un niño en brazos?
+          </h3>
+          <div className="disability-buttons">
+            <button 
+              onClick={() => setHasDisability(true)} 
+              className={`disability-button ${hasDisability === true ? 'selected' : ''}`}
+            >
+              Sí
+            </button>
+            <button 
+              onClick={() => setHasDisability(false)} 
+              className={`disability-button ${hasDisability === false ? 'selected' : ''}`}
+            >
+              No
+            </button>
           </div>
         </div>
-      </div>
-    </div>
+  
+        <div className="form-group">
+          <h3 className="form-label">Tipo de Servicio:</h3>
+          <select
+            value={tipoCita}
+            onChange={(e) => setTipoCita(e.target.value)}
+            className="form-input"
+          >
+            <option value="" disabled>Selecciona un servicio</option>
+            {servicios.map((servicio) => (
+              <option key={servicio.id} value={servicio.nombre}>
+                {servicio.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+  
+        <button onClick={handleRequestTurno} className="request-button">
+          SOLICITAR TURNO
+        </button>
+      </div> {/* Cierre de pedir-turno-container */}
+  
+      <div className="turno-display">
+        <div className="display-container">
+          <h2 className="punto-name">Información del Turno</h2>
+          <p className="turn-info-value">
+            Tu prioridad será evaluada automáticamente según tus respuestas.
+          </p>
+        </div>
+  
+        <div className="advertisement-section">
+          <h3 className="ad-title">Publicidad</h3>
+          <div className="ad-container">
+            <img 
+              src="https://via.placeholder.com/800x450" 
+              alt="Publicidad" 
+              className="ad-image" 
+            />
+          </div>
+        </div>
+      </div> {/* Cierre de turno-display */}
+    </div> // cierre pedir-turno-page
   );
-};
-
+}
 export default PedirTurno;

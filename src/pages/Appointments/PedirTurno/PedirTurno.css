@@ -105,7 +105,7 @@
 .form-select {
   width: 100%;
   padding: 16px;
-  font-size: 1.25rem;
+  font-size: 3.25rem;
   border: 2px solid #99c2ff;
   border-radius: 8px;
   background-color: #ffffff;
@@ -339,7 +339,7 @@
   }
   
   .form-label {
-    font-size: 1.1rem;
+    font-size: 3.1rem;
   }
   
   .form-select {

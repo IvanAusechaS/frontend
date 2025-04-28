@@ -101,9 +101,11 @@ export const createTurno = async (turnoData, userId) => {
       throw new Error('No se proporcionó el ID del usuario');
     }
     const response = await api.post('turnos/', {
-      punto_atencion_id: turnoData.punto_atencion,
+      //punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
       prioridad: turnoData.prioridad || 'N',
+      //fecha_cita: turnoData.fecha_cita, // <-- 👈🏻 Agregado
+
     });
     console.log('Turno creado:', response.data);
     return response.data;
@@ -217,13 +219,23 @@ export const createPuntoAtencion = async (puntoData) => {
   }
 };
 
-export const getPuntosAtencionServices = async () => {
+export const createServicio = async (servicioData) => {
   try {
-    const response = await api.get('puntos-atencion-services/');
-    console.log('Puntos y servicios:', response.data);
+    const response = await api.post('servicios/', servicioData);
     return response.data;
   } catch (error) {
-    console.error('Error en getPuntosAtencionServices:', error.response ? error.response.data : error.message);
+    console.error('Error en createServicio:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const getServicios = async () => { 
+  try {
+    const response = await api.get('servicios/');
+    console.log('Servicios:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en getServicios:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
