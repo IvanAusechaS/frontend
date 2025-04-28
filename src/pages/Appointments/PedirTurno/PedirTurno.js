@@ -16,10 +16,18 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);// se agrega userProp para evitar warning de dependencias
   //const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
-
+  const handleCreateTurno = async () => {
+    setLoading(true);
+    try {
+      // tu código de creación
+    } finally {
+      setLoading(false);
+    }
+  }
   useEffect(() => {
     console.log('Usuario en PedirTurno:', user);
     const fetchData = async () => {
@@ -84,9 +92,9 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         fecha_cita: localDate, // Include fecha_cita in the request
         prioridad: hasDisability === 'yes' ? 'P' : 'N',
       };
-    
+      console.log('Solicitando creación de turno...');
       const newTurno = await createTurno(turnoData, user.id);
-    
+      
       //const puntoNombre = puntosServicios[selectedPunto.nombre];
       //const puntoNombre = puntosServicios?.nombre || 'el punto de atención seleccionado';
       //setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
@@ -160,6 +168,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         <button onClick={handleRequestTurno} className="request-button">
           SOLICITAR TURNO
         </button>
+
       </div> {/* Cierre de pedir-turno-container */}
   
       <div className="turno-display">
