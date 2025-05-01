@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api';
+import { getUserTurnos } from '../../../services/api';
+import api from '../../../services/api'; // Add this import
 import './Profile.css';
 
 const Profile = ({ user, setUser }) => {
@@ -14,21 +15,21 @@ const Profile = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token || !user) {
-          navigate('/login');
-          return;
-        }
-        const response = await api.get('turnos/');
-        setAppointments(response.data);
-      } catch (err) {
-        setError('Error al cargar las citas');
+  const fetchAppointments = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token || !user) {
+        navigate('/login');
+        return;
       }
-    };
-    fetchAppointments();
-  }, [user, navigate]);
+      const response = await getUserTurnos();  // Usa getUserTurnos en lugar de api.get('turnos/')
+      setAppointments(response);
+    } catch (err) {
+      setError('Error al cargar las citas');
+    }
+  };
+  fetchAppointments();
+}, [user, navigate]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();

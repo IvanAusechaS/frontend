@@ -96,11 +96,11 @@ export const getCurrentTurnos = async () => {
 
 export const createTurno = async (turnoData, userId) => {
   try {
-    console.log('Datos enviados a /turnos/:', turnoData);
+    console.log('Datos enviados a /turnos/create/:', turnoData);
     if (!userId) {
       throw new Error('No se proporcionó el ID del usuario');
     }
-    const response = await api.post('turnos/', {
+    const response = await api.post('turnos/create/', {
       punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
       prioridad: turnoData.prioridad || 'N',
@@ -109,6 +109,17 @@ export const createTurno = async (turnoData, userId) => {
     return response.data;
   } catch (error) {
     console.error('Error completo en createTurno:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const getUserTurnos = async () => {
+  try {
+    const response = await api.get('turnos/list/');
+    console.log('Turnos del usuario obtenidos:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en getUserTurnos:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
@@ -154,14 +165,14 @@ export const logoutUser = async () => {
     throw error;
   }
 };
-
 export const registerUser = async (userData) => {
   try {
     const response = await api.post('register/', userData);
     console.log('Usuario registrado:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error en registerUser:', error.response ? error.response.data : error.message);
+    const errorDetails = error.response ? error.response.data : error.message;
+    console.error('Error en registerUser:', JSON.stringify(errorDetails, null, 2));
     throw error;
   }
 };

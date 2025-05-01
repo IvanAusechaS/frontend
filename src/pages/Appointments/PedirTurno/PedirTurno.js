@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../../../services/api';
+import adPlaceholder from '../../../assets/images/publicidad.jpeg'; // Ajusta la ruta según tu estructura
 import './PedirTurno.css';
 
 const PedirTurno = ({ user: userProp, setUser }) => {
@@ -9,7 +10,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [puntosServicios, setPuntosServicios] = useState({});
   const [selectedPunto, setSelectedPunto] = useState('');
   const [tipoCita, setTipoCita] = useState('');
-  const [fechaCita, setFechaCita] = useState(''); // New state for fecha_cita
   const [hasDisability, setHasDisability] = useState(null);
   const [disabilityType, setDisabilityType] = useState('');
   const [error, setError] = useState('');
@@ -58,10 +58,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setError('Por favor, selecciona un tipo de servicio.');
       return;
     }
-    if (!fechaCita) {
-      setError('Por favor, selecciona la fecha y hora de la cita.');
-      return;
-    }
     if (hasDisability === null) {
       setError('Por favor, indica si tienes alguna discapacidad.');
       return;
@@ -78,25 +74,20 @@ const PedirTurno = ({ user: userProp, setUser }) => {
     setError('');
     setSuccess('');
     try {
-      // Convert the local datetime to UTC
-      const localDate = new Date(fechaCita);
-      const utcDate = localDate.toISOString(); // Converts to UTC with Z suffix (e.g., "2025-04-19T20:00:00.000Z")
-
       const turnoData = {
         punto_atencion: parseInt(selectedPunto),
         tipo_cita: tipoCita,
-        fecha_cita: utcDate, // Include fecha_cita in the request
         prioridad: hasDisability === 'yes' ? 'P' : 'N',
       };
       const newTurno = await createTurno(turnoData, user.id);
       const puntoNombre = puntosServicios[selectedPunto].nombre;
       setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
       setTipoCita('');
-      setFechaCita(''); // Reset fechaCita
       setHasDisability(null);
       setDisabilityType('');
       setTimeout(() => navigate('/appointment-history'), 2000);
     } catch (err) {
+      // Check if the error is due to the time range validation
       const errorDetail = err.response?.data?.detail || err.response?.data?.fecha_cita?.[0] || 'Error desconocido';
       if (errorDetail.includes('Los turnos solo pueden ser entre')) {
         setError('No se puede solicitar un turno en este momento. Los turnos solo están disponibles de 8:00 a 22:00.');
@@ -138,6 +129,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
             <div className="options-container">
               <h2 className="section-title">Seleccionar Servicio</h2>
               
+              {/* Add informational message about the time range */}
               <div className="time-info">
                 <p>Nota: Los turnos solo pueden ser solicitados entre las 8:00 y las 22:00.</p>
               </div>
@@ -173,19 +165,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                         <option key={index} value={servicio.toLowerCase()}>{servicio}</option>
                       ))}
                     </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Fecha y Hora de la Cita:</label>
-                    <input
-                      type="datetime-local"
-                      value={fechaCita}
-                      onChange={(e) => setFechaCita(e.target.value)}
-                      className="form-input"
-                      min="2025-04-19T08:00" // Example: restrict to operating hours
-                      max="2025-04-19T22:00"
-                      step="900" // 15-minute intervals
-                    />
                   </div>
 
                   <div className="form-group">
@@ -258,16 +237,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
               </div>
             )}
 
-            <div className="advertisement-section">
-              <h3 className="ad-title">Publicidad</h3>
-              <div className="ad-container">
-                <img 
-                  src="https://via.placeholder.com/800x450"
-                  alt="Publicidad" 
-                  className="ad-image"
-                />
-              </div>
-            </div>
+{/* Advertisement Section */}
+<div className="advertisement-section">
+        <h3 className="ad-title">Publicidad</h3>
+        <div className="ad-container">
+          <img 
+            src={adPlaceholder} // Usa la imagen local
+            alt="Publicidad" 
+            className="ad-image"
+          />
+        </div>
+      </div>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import './Login.css';
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error } = useAuth();
+  const { login, error, success } = useAuth(); // Add for the Delay
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -22,6 +22,7 @@ const Login = ({ setUser }) => {
       <div className="login-card">
         <h1 className="login-title">Iniciar Sesión</h1>
         <p className="login-subtitle">Accede a tu cuenta con facilidad</p>
+        {success && <p className="login-success">{success}</p>} {/* Add success message */}
         {error && <p className="login-error">{error}</p>}
 
         {/* Formulario de login con email */}

@@ -8,8 +8,7 @@ const Register = ({ setUser }) => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const { register, error, success } = useAuth();
   const navigate = useNavigate();
 
   const normalizeUser = (userData, formData) => {
@@ -49,8 +48,8 @@ const Register = ({ setUser }) => {
       <div className="register-card">
         <h1 className="register-title">Regístrate</h1>
         <p className="register-subtitle">Crea tu cuenta para comenzar</p>
+        {success && <p className="register-success">{success}</p>} {/* Already present, ensure it's styled */}
         {error && <p className="register-error">{error}</p>}
-        {success && <p className="register-success">{success}</p>}
         <form onSubmit={handleRegister} className="register-form">
           <div className="register-input-group">
             <label className="register-label">Cédula</label>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api';
-import { cancelTurno } from '../../../services/api';
+import { cancelTurno, getUserTurnos } from '../../../services/api';
 import './AppointmentHistory.css';
 
 const AppointmentHistory = ({ user, setUser }) => {
@@ -23,11 +22,10 @@ const AppointmentHistory = ({ user, setUser }) => {
           navigate('/login');
           return;
         }
-        const response = await api.get('turnos/'); // Cambiar a /turnos/
-        console.log('Turnos obtenidos en AppointmentHistory:', response.data); // Añadir log para depurar
-        setAppointments(response.data || []);
         setError('');
-      } catch (err) {
+      } 
+      
+      catch (err) {
         if (err.response?.status === 401) {
           setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
           localStorage.clear();
