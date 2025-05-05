@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../../../services/api';
+import { getCurrentTurnos, createTurno, getPuntosAtencionServices, getPendingTurnosByService } from '../../../services/api';
 import adPlaceholder from '../../../assets/images/publicidad.jpeg'; // Ajusta la ruta según tu estructura
 import './PedirTurno.css';
 
@@ -14,6 +14,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [disabilityType, setDisabilityType] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [turnosPendientes, setTurnosPendientes] = useState([]);
   const navigate = useNavigate();
 
   const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
@@ -35,6 +36,9 @@ const PedirTurno = ({ user: userProp, setUser }) => {
         const puntosData = await getPuntosAtencionServices();
         setPuntosServicios(puntosData);
         setSelectedPunto(Object.keys(puntosData)[0] || '');
+
+        const turnosPendientes = await getPendingTurnosByService();// muestra los turnos pendientes por servicio
+      setTurnosPendientes(turnosPendientes);
       } catch (err) {
         setError('Error al cargar datos: ' + (err.response?.data?.detail || err.message));
         if (err.response?.status === 401) {
