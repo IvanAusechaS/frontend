@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../services/api';
 import './Register.css';
+import  useAuth  from '../../../hooks/useAuth';
 
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register, error, success } = useAuth();
+  const { register, error, success, setSuccess, setError } = useAuth();
   const navigate = useNavigate();
 
   const normalizeUser = (userData, formData) => {
