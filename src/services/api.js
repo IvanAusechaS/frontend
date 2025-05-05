@@ -270,5 +270,19 @@ export const getProfesionalStats = async () => {
   }
 };
 
+//agregar array de turnos pendientes por servicio
+export const getPendingTurnosByService = async () => {
+  try {
+    const response = await api.get('pending-turnos-by-service/');
+    console.log('Turnos pendientes por servicio:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en getPendingTurnosByService:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+
+
 // Exporta la instancia api como exportación por defecto
 export default api;
