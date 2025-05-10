@@ -6,6 +6,9 @@ const API_URL = 'http://127.0.0.1:8000/api/tickets/';
 // Configura una instancia de axios con headers por defecto
 const api = axios.create({
   baseURL: API_URL,
+  headers:{
+    'Content-Type': 'application/json',
+  },  
 });
 
 // Función para renovar el token
@@ -83,11 +86,13 @@ export const cancelTurno = async (turnoId) => {
   }
 };
 
-export const getCurrentTurnos = async () => {
+export const getCurrentTurnos = async (puntoAtencionId) => {
   try {
-    const response = await api.get('current-turnos/');
-    console.log('Turnos actuales:', response.data);
-    return response.data;
+    const response = await api.get('turnos/colas/', {
+      params: { punto_atencion_id: puntoAtencionId }
+    });
+    console.log('Colas de turnos:', response.data);
+    return response.data; // Devuelve { turnos: [...] }
   } catch (error) {
     console.error('Error en getCurrentTurnos:', error.response ? error.response.data : error.message);
     throw error;
@@ -103,7 +108,7 @@ export const createTurno = async (turnoData, userId) => {
     const response = await api.post('turnos/create/', {
       punto_atencion_id: turnoData.punto_atencion,
       tipo_cita: turnoData.tipo_cita,
-      prioridad: turnoData.prioridad || 'N',
+      respuestas_prioridad: turnoData.respuestas_prioridad || {}
     });
     console.log('Turno creado:', response.data);
     return response.data;
@@ -126,12 +131,33 @@ export const getUserTurnos = async () => {
 
 export const getTurnos = async () => {
   try {
-      const response = await api.get('profesional-turnos/');
-      console.log('Turnos obtenidos:', response.data);
-      return response.data;
+    const response = await api.get('profesional-turnos/');
+    console.log('Turnos obtenidos:', response.data);
+    return response.data;
   } catch (error) {
-      console.error('Error en getTurnos:', error.response ? error.response.data : error.message);
-      throw error;
+    console.error('Error en getTurnos:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const updateTurno = async (turnoId, updatedData) => {
+  try {
+    const response = await api.put(`turnos/${turnoId}/`, updatedData);
+    console.log('Turno actualizado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar turno:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const createTicket = async (ticketData) => {
+  try {
+    const response = await api.post('tickets/', ticketData);
+    return response.data;
+  } catch (error) {
+    console.error('Error en createTicket:', error.response ? error.response.data : error.message);
+    throw error;
   }
 };
 
@@ -173,27 +199,6 @@ export const registerUser = async (userData) => {
   } catch (error) {
     const errorDetails = error.response ? error.response.data : error.message;
     console.error('Error en registerUser:', JSON.stringify(errorDetails, null, 2));
-    throw error;
-  }
-};
-
-export const updateTurno = async (turnoId, updatedData) => {
-  try {
-    const response = await api.put(`turnos/${turnoId}/`, updatedData);
-    console.log('Turno actualizado:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error al actualizar turno:', error.response ? error.response.data : error.message);
-    throw error;
-  }
-};
-
-export const createTicket = async (ticketData) => {
-  try {
-    const response = await api.post('tickets/', ticketData);
-    return response.data;
-  } catch (error) {
-    console.error('Error en createTicket:', error.response ? error.response.data : error.message);
     throw error;
   }
 };

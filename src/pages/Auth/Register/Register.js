@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useAuth from '../../../hooks/useAuth'; // Importamos useAuth
 import { registerUser } from '../../../services/api';
 import './Register.css';
 
@@ -8,7 +9,9 @@ const Register = ({ setUser }) => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register, error, success } = useAuth();
+  const [error, setError] = useState(''); // Definimos el estado error localmente
+  const [success, setSuccess] = useState(''); // Definimos el estado success localmente
+  const { register } = useAuth(); // Usamos useAuth para la función register
   const navigate = useNavigate();
 
   const normalizeUser = (userData, formData) => {
@@ -25,7 +28,7 @@ const Register = ({ setUser }) => {
     e.preventDefault();
     try {
       const formData = { cedula, nombre, email, password };
-      const response = await registerUser(formData);
+      const response = await register(formData); // Usamos la función register de useAuth
       const { access, refresh, user } = response;
       const normalizedUser = normalizeUser(user, formData);
       localStorage.setItem('token', access);
@@ -48,7 +51,7 @@ const Register = ({ setUser }) => {
       <div className="register-card">
         <h1 className="register-title">Regístrate</h1>
         <p className="register-subtitle">Crea tu cuenta para comenzar</p>
-        {success && <p className="register-success">{success}</p>} {/* Already present, ensure it's styled */}
+        {success && <p className="register-success">{success}</p>}
         {error && <p className="register-error">{error}</p>}
         <form onSubmit={handleRegister} className="register-form">
           <div className="register-input-group">

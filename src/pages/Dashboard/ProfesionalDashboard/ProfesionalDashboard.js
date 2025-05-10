@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTurnos, updateTurno } from '../../../services/api';
+import { getTurnos, updateTurno, getCurrentTurnos } from '../../../services/api';
 import './ProfesionalDashboard.css';
 import { FaUser, FaCalendarAlt, FaStethoscope, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdPriorityHigh } from 'react-icons/md';
@@ -8,6 +8,7 @@ import EstadisticasGraficas from '../EstadisticasGraficas/EstadisticasGraficas';
 
 const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const [turnos, setTurnos] = useState([]);
+  const [turnosEnEspera, setTurnosEnEspera] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterEstado, setFilterEstado] = useState('all');
@@ -36,26 +37,54 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
       }
       const data = await getTurnos();
       setTurnos(data);
+
+      const puntoAtencionId = user.punto_atencion_id || 1;
+      const turnosOrdenadosData = await getCurrentTurnos(puntoAtencionId);
+      setTurnosEnEspera(turnosOrdenadosData.turnos || []);
+
       setLoading(false);
     } catch (err) {
       handleError(err);
     }
-  }, [navigate, user.es_profesional, handleError]);
+  }, [navigate, user.es_profesional, user.punto_atencion_id, handleError]);
 
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
       const turno = turnos.find(t => t.id === turnoId);
       if (!turno) throw new Error('Turno no encontrado');
-  
+
       const data = {
         estado: nuevoEstado,
       };
-  
+
       const updatedTurno = await updateTurno(turnoId, data);
-      const updatedTurnos = turnos.map(t =>
+      let updatedTurnos = turnos.map(t =>
         t.id === turnoId ? { ...t, ...updatedTurno } : t
       );
       setTurnos(updatedTurnos);
+
+      const puntoAtencionId = user.punto_atencion_id || 1;
+      const turnosOrdenadosData = await getCurrentTurnos(puntoAtencionId);
+
+      // Si el cambio es a "Atendido" o "Cancelado" desde "En progreso", quitar de las colas
+      if (nuevoEstado === 'Atendido' || nuevoEstado === 'Cancelado') {
+        setTurnosEnEspera(turnosOrdenadosData.turnos || []);
+      } else if (nuevoEstado === 'En progreso') {
+        // Si se pasa a "En progreso" (desde "Atender" en Sala de Espera), devolver el turno actual a la cola
+        const turnoActual = turnos.find(t => t.estado === 'En progreso' && t.id !== turnoId);
+        if (turnoActual) {
+          const dataBackToQueue = {
+            estado: 'En espera',
+          };
+          await updateTurno(turnoActual.id, dataBackToQueue);
+          updatedTurnos = updatedTurnos.map(t =>
+            t.id === turnoActual.id ? { ...t, estado: 'En espera' } : t
+          );
+        }
+        setTurnos(updatedTurnos);
+        setTurnosEnEspera(turnosOrdenadosData.turnos || []);
+      }
+
       setError('');
     } catch (err) {
       console.error('Error al actualizar el turno:', err);
@@ -70,55 +99,27 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   }, [fetchTurnos]);
 
   const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('es-CO', {
-      timeZone: 'America/Bogota',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('es-CO', {
-      timeZone: 'America/Bogota',
-      hour: '2-digit',
-      minute: '2-digit',
+    const parsedDate = new Date(dateString + 'T00:00:00');
+    if (isNaN(parsedDate)) {
+      return 'Fecha inválida';
+    }
+    return parsedDate.toLocaleString('es-CO', {
+      dateStyle: 'medium', // Solo fecha, sin hora
+      timeZone: 'America/Bogota'
     });
   };
 
   const turnoActual = turnos.find(turno => turno.estado === 'En progreso') ||
-                      turnos.filter(turno => turno.estado === 'En espera')
-                            .sort((a, b) => {
-                              if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
-                              return a.prioridad === 'P' ? -1 : 1;
-                            })[0];
-  
-  const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera')
-                               .sort((a, b) => {
-                                 if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
-                                 return a.prioridad === 'P' ? -1 : 1;
-                               });
+                      turnos.filter(turno => turno.estado === 'En espera')[0];
 
   const turnosCompletados = turnos.filter(turno => turno.estado === 'Atendido');
   const turnosCancelados = turnos.filter(turno => turno.estado === 'Cancelado');
 
-  // Filtrar turnos para el día actual
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const turnosParaGraficas = turnos.filter(turno => {
-    const fechaUTC = new Date(turno.fecha_cita);
-    const fechaColombia = new Date(fechaUTC.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-    const fechaTurno = new Date(fechaColombia);
-    fechaTurno.setHours(0, 0, 0, 0);
-  
-    const esHoy = fechaTurno.getTime() === today.getTime();
-    return esHoy;
-  });
+  const turnosParaGraficas = turnos;
+  console.log('Turnos enviados a EstadisticasGraficas:', turnosParaGraficas);
   
   const getFilteredTurnos = () => {
     if (filterEstado === 'all') return turnos;
@@ -159,7 +160,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                   <div className="turno-info">
                     <p><FaUser /> <strong>Paciente:</strong> {typeof turnoActual.usuario === 'object' ? turnoActual.usuario.nombre : turnoActual.usuario}</p>
                     <p><FaStethoscope /> <strong>Tipo:</strong> {turnoActual.tipo_cita}</p>
-                    <p><FaCalendarAlt /> <strong>Fecha:</strong> {formatDateTime(turnoActual.fecha_cita)}</p>
+                    <p><FaCalendarAlt /> <strong>Fecha:</strong> {formatDateTime(turnoActual.fecha)}</p>
                     {turnoActual.prioridad === 'P' && (
                       <p className="prioridad">
                         <MdPriorityHigh /> <strong>Prioritario</strong>
@@ -196,7 +197,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                         <span className="turno-numero">{turno.numero}</span>
                         <div className="turno-detalles">
                           <p className="turno-paciente">{typeof turno.usuario === 'object' ? turno.usuario.nombre : turno.usuario}</p>
-                          <p className="turno-tipo">{turno.tipo_cita} - {formatTime(turno.fecha_cita)}</p>
+                          <p className="turno-tipo">{turno.tipo_cita} - {formatDateTime(turno.fecha)}</p>
                         </div>
                       </div>
                       <button
@@ -290,7 +291,6 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                       <th>Número</th>
                       <th>Paciente</th>
                       <th>Tipo</th>
-                      <th>Hora</th>
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
@@ -305,7 +305,6 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                           </td>
                           <td>{typeof turno.usuario === 'object' ? turno.usuario.nombre : turno.usuario}</td>
                           <td>{turno.tipo_cita}</td>
-                          <td>{formatTime(turno.fecha_cita)}</td>
                           <td>
                             <span className={`estado-badge estado-${turno.estado.toLowerCase().replace(' ', '-')}`}>
                               {turno.estado}
@@ -327,7 +326,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="no-data-cell">No hay turnos que mostrar</td>
+                        <td colSpan="5" className="no-data-cell">No hay turnos que mostrar</td>
                       </tr>
                     )}
                   </tbody>

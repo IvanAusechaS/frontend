@@ -368,3 +368,12 @@
 .time-info p {
   margin: 0;
 }
+.turn-info-box ul li {
+  padding: 5px 0;
+}
+.turn-info-box ul li[data-prioritario="true"] {
+  color: #d32f2f; /* Rojo para prioritarios */
+}
+.turn-info-box ul li[data-prioritario="false"] {
+  color: #1976d2; /* Azul para normales */
+}
