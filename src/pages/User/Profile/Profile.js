@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserTurnos } from '../../../services/api';
-import api from '../../../services/api'; // Add this import
+import api from '../../../services/api';
 import './Profile.css';
 
 const Profile = ({ user, setUser }) => {
@@ -15,21 +15,21 @@ const Profile = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const fetchAppointments = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token || !user) {
-        navigate('/login');
-        return;
+    const fetchAppointments = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token || !user) {
+          navigate('/login');
+          return;
+        }
+        const response = await getUserTurnos();
+        setAppointments(response);
+      } catch (err) {
+        setError('Error al cargar las citas');
       }
-      const response = await getUserTurnos();  // Usa getUserTurnos en lugar de api.get('turnos/')
-      setAppointments(response);
-    } catch (err) {
-      setError('Error al cargar las citas');
-    }
-  };
-  fetchAppointments();
-}, [user, navigate]);
+    };
+    fetchAppointments();
+  }, [user, navigate]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -64,7 +64,10 @@ const Profile = ({ user, setUser }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+    return date.toLocaleString('es-CO', { 
+      dateStyle: 'medium', // Solo fecha, sin hora
+      timeZone: 'America/Bogota' 
+    });
   };
 
   const getStatusClass = (status) => {
@@ -165,7 +168,7 @@ const Profile = ({ user, setUser }) => {
           <div className="no-appointments">
             <p>No tienes citas programadas actualmente.</p>
             <button 
-              onClick={() => navigate('/pedir-turno')} // Updated path
+              onClick={() => navigate('/pedir-turno')}
               className="profile-button schedule-button"
             >
               Programar una cita
@@ -190,27 +193,8 @@ const Profile = ({ user, setUser }) => {
                   
                   <div className="appointment-info">
                     <i className="icon calendar-icon"></i>
-                    <span>{formatDate(appointment.fecha_cita)}</span>
+                    <span>{formatDate(appointment.fecha)}</span>
                   </div>
-                </div>
-                
-                <div className="appointment-actions">
-                  {appointment.estado !== 'cancelada' && (
-                    <>
-                      <button 
-                        className="action-button reschedule"
-                        onClick={() => navigate(`/reprogramar/${appointment.id}`)}
-                      >
-                        Reprogramar
-                      </button>
-                      <button 
-                        className="action-button cancel"
-                        onClick={() => navigate(`/cancelar/${appointment.id}`)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             ))}

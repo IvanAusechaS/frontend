@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentTurnos, createTurno, getPuntosAtencionServices, getPendingTurnosByService } from '../../../services/api';
-import adPlaceholder from '../../../assets/images/publicidad.jpeg'; // Ajusta la ruta según tu estructura
+import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../../../services/api';
+import adPlaceholder from '../../../assets/images/publicidad.jpeg';
 import './PedirTurno.css';
 
 const PedirTurno = ({ user: userProp, setUser }) => {
-  const [currentTurnos, setCurrentTurnos] = useState({});
-  const [estimatedTime, setEstimatedTime] = useState({});
+  const [currentTurnos, setCurrentTurnos] = useState([]);
   const [puntosServicios, setPuntosServicios] = useState({});
   const [selectedPunto, setSelectedPunto] = useState('');
   const [tipoCita, setTipoCita] = useState('');
-  const [hasDisability, setHasDisability] = useState(null);
-  const [disabilityType, setDisabilityType] = useState('');
+  const [isPrioritario, setIsPrioritario] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [turnosPendientes, setTurnosPendientes] = useState([]);
@@ -29,16 +27,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
           navigate('/login');
           return;
         }
-        const turnosData = await getCurrentTurnos();
-        setCurrentTurnos(turnosData.current_turnos || {});
-        setEstimatedTime(turnosData.estimated_times || {});
-
+        // Obtener puntos de atención primero
         const puntosData = await getPuntosAtencionServices();
         setPuntosServicios(puntosData);
-        setSelectedPunto(Object.keys(puntosData)[0] || '');
+        const initialPunto = Object.keys(puntosData)[0] || '';
+        setSelectedPunto(initialPunto);
 
-        const turnosPendientes = await getPendingTurnosByService();// muestra los turnos pendientes por servicio
-      setTurnosPendientes(turnosPendientes);
+        // Solo obtener turnos si hay un punto seleccionado
+        if (initialPunto) {
+          const turnosData = await getCurrentTurnos(initialPunto);
+          setCurrentTurnos(turnosData.turnos || []);
+        }
       } catch (err) {
         setError('Error al cargar datos: ' + (err.response?.data?.detail || err.message));
         if (err.response?.status === 401) {
@@ -49,9 +48,11 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       }
     };
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(() => {
+      if (selectedPunto) fetchData(); // Solo actualizar si hay un punto seleccionado
+    }, 30000);
     return () => clearInterval(interval);
-  }, [navigate, setUser, user.id]);
+  }, [navigate, setUser, user.id]); // selectedPunto ya no es necesario como dependencia
 
   const handleRequestTurno = async () => {
     if (!selectedPunto) {
@@ -62,12 +63,8 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setError('Por favor, selecciona un tipo de servicio.');
       return;
     }
-    if (hasDisability === null) {
-      setError('Por favor, indica si tienes alguna discapacidad.');
-      return;
-    }
-    if (hasDisability === 'yes' && !disabilityType) {
-      setError('Por favor, selecciona el tipo de discapacidad.');
+    if (isPrioritario === null) {
+      setError('Por favor, indica si cumples con alguna condición prioritaria.');
       return;
     }
     if (!user.id) {
@@ -81,32 +78,22 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       const turnoData = {
         punto_atencion: parseInt(selectedPunto),
         tipo_cita: tipoCita,
-        prioridad: hasDisability === 'yes' ? 'P' : 'N',
+        respuestas_prioridad: {
+          "¿Cumples con alguna de estas condiciones: eres mayor a 60 años, estás embarazada, tienes bebé en brazos o tienes alguna discapacidad?": isPrioritario === 'yes' ? 'sí' : 'no'
+        }
       };
+      console.log('Enviando datos al backend:', turnoData);
       const newTurno = await createTurno(turnoData, user.id);
       const puntoNombre = puntosServicios[selectedPunto].nombre;
       setSuccess(`Turno ${newTurno.numero} solicitado con éxito en ${puntoNombre}.`);
       setTipoCita('');
-      setHasDisability(null);
-      setDisabilityType('');
+      setIsPrioritario(null);
       setTimeout(() => navigate('/appointment-history'), 2000);
     } catch (err) {
-      // Check if the error is due to the time range validation
-      const errorDetail = err.response?.data?.detail || err.response?.data?.fecha_cita?.[0] || 'Error desconocido';
-      if (errorDetail.includes('Los turnos solo pueden ser entre')) {
-        setError('No se puede solicitar un turno en este momento. Los turnos solo están disponibles de 8:00 a 22:00.');
-      } else {
-        setError('Error al solicitar turno: ' + (errorDetail || err.message));
-      }
+      const errorDetail = err.response?.data?.detail || err.response?.data?.error || 'Error desconocido';
+      setError('Error al solicitar turno: ' + (errorDetail || err.message));
     }
   };
-
-  const disabilityOptions = [
-    'Movilidad Reducida',
-    'Discapacidad Visual',
-    'Discapacidad Auditiva',
-    'Otra',
-  ];
 
   return (
     <div className="pedir-turno-page">
@@ -132,11 +119,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
           <div className="turno-options">
             <div className="options-container">
               <h2 className="section-title">Seleccionar Servicio</h2>
-              
-              {/* Add informational message about the time range */}
-              <div className="time-info">
-                <p>Nota: Los turnos solo pueden ser solicitados entre las 8:00 y las 22:00.</p>
-              </div>
 
               <div className="form-group">
                 <label className="form-label">Punto de Atención:</label>
@@ -145,6 +127,16 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                   onChange={(e) => {
                     setSelectedPunto(e.target.value);
                     setTipoCita('');
+                    // Actualizar turnos al cambiar el punto
+                    const fetchTurnos = async () => {
+                      try {
+                        const turnosData = await getCurrentTurnos(e.target.value);
+                        setCurrentTurnos(turnosData.turnos || []);
+                      } catch (err) {
+                        setError('Error al cargar turnos: ' + (err.response?.data?.detail || err.message));
+                      }
+                    };
+                    fetchTurnos();
                   }}
                   className="form-select"
                 >
@@ -172,36 +164,23 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">¿Tienes alguna discapacidad?</label>
-                    <div className="disability-buttons">
+                    <label className="form-label">¿Cumples con alguna de estas condiciones: eres mayor a 60 años, estás embarazada, tienes bebé en brazos o tienes alguna discapacidad?</label>
+                    <div className="priority-buttons">
                       <button
                         type="button"
-                        onClick={() => setHasDisability('yes')}
-                        className={`disability-button ${hasDisability === 'yes' ? 'selected' : ''}`}
+                        onClick={() => setIsPrioritario('yes')}
+                        className={`priority-button ${isPrioritario === 'yes' ? 'selected' : ''}`}
                       >
                         Sí
                       </button>
                       <button
                         type="button"
-                        onClick={() => { setHasDisability('no'); setDisabilityType(''); }}
-                        className={`disability-button ${hasDisability === 'no' ? 'selected' : ''}`}
+                        onClick={() => setIsPrioritario('no')}
+                        className={`priority-button ${isPrioritario === 'no' ? 'selected' : ''}`}
                       >
                         No
                       </button>
                     </div>
-
-                    {hasDisability === 'yes' && (
-                      <select
-                        value={disabilityType}
-                        onChange={(e) => setDisabilityType(e.target.value)}
-                        className="form-select disability-select"
-                      >
-                        <option value="">Selecciona el tipo</option>
-                        {disabilityOptions.map((option, index) => (
-                          <option key={index} value={option.toLowerCase()}>{option}</option>
-                        ))}
-                      </select>
-                    )}
                   </div>
                 </>
               )}
@@ -218,13 +197,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                 
                 <div className="turn-info-grid">
                   <div className="turn-info-box">
-                    <p className="turn-info-label">TURNO ACTUAL</p>
-                    <p className="turn-info-value">{currentTurnos[selectedPunto] || "---"}</p>
-                  </div>
-                  
-                  <div className="turn-info-box">
-                    <p className="turn-info-label">TIEMPO ESTIMADO</p>
-                    <p className="turn-info-value">{estimatedTime[selectedPunto] || "0"} <span className="minute-label">min</span></p>
+                    <p className="turn-info-label">TURNOS EN ESPERA</p>
+                    <ul className="turn-info-value">
+                      {currentTurnos.length > 0 ? currentTurnos.map(turno => (
+                        <li
+                          key={turno.id}
+                          className={turno.prioridad === 'P' ? 'turno-prioritario' : 'turno-normal'}
+                        >
+                          {turno.numero} {turno.prioridad === 'P' ? '(Prioritario)' : '(Normal)'}
+                        </li>
+                      )) : <li>---</li>}
+                    </ul>
                   </div>
                 </div>
 
@@ -241,17 +224,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
               </div>
             )}
 
-{/* Advertisement Section */}
-<div className="advertisement-section">
-        <h3 className="ad-title">Publicidad</h3>
-        <div className="ad-container">
-          <img 
-            src={adPlaceholder} // Usa la imagen local
-            alt="Publicidad" 
-            className="ad-image"
-          />
-        </div>
-      </div>
+            {/* Advertisement Section */}
+            <div className="advertisement-section">
+              <h3 className="ad-title">Publicidad</h3>
+              <div className="ad-container">
+                <img 
+                  src={adPlaceholder}
+                  alt="Publicidad" 
+                  className="ad-image"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
