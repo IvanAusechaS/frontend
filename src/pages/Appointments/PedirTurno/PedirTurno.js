@@ -17,7 +17,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [turnosPendientes, setTurnosPendientes] = useState([]);
   const navigate = useNavigate();
 
-  const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
+  const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);
 
   useEffect(() => {
     console.log('Usuario en PedirTurno:', user);
@@ -51,7 +51,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, [navigate, setUser, user.id]);
+  }, [navigate, setUser, user, user.id]);
 
   const handleRequestTurno = async () => {
     if (!selectedPunto) {

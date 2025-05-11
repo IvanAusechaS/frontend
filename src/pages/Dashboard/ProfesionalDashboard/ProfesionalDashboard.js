@@ -29,11 +29,13 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const fetchTurnos = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token || !user.es_profesional) {
+      if (!token || user.es_profesional !== true) {
+
         setError('Debes ser un profesional autenticado para acceder.');
         navigate('/login');
         return;
       }
+
       const data = await getTurnos();
       setTurnos(data);
       setLoading(false);
@@ -97,12 +99,26 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
                               return a.prioridad === 'P' ? -1 : 1;
                             })[0];
   
-  const turnosEnEspera = turnos.filter(turno => turno.estado === 'En espera')
-                               .sort((a, b) => {
-                                 if (a.prioridad === b.prioridad) return a.numero.localeCompare(b.numero);
-                                 return a.prioridad === 'P' ? -1 : 1;
-                               });
-
+                            const turnosEnEspera = (() => {
+                              const enEspera = turnos.filter(turno => turno.estado === 'En espera');
+                            
+                              const prioritarios = enEspera
+                                .filter(t => t.prioridad === 'P')
+                                .sort((a, b) => new Date(a.fecha_cita) - new Date(b.fecha_cita));
+                            
+                              const normales = enEspera
+                                .filter(t => t.prioridad === 'N')
+                                .sort((a, b) => new Date(a.fecha_cita) - new Date(b.fecha_cita));
+                            
+                              const intercalados = [];
+                              const max = Math.max(prioritarios.length, normales.length);
+                              for (let i = 0; i < max; i++) {
+                                if (i < prioritarios.length) intercalados.push(prioritarios[i]);
+                                if (i < normales.length) intercalados.push(normales[i]);
+                              }
+                            
+                              return intercalados;
+                            })()
   const turnosCompletados = turnos.filter(turno => turno.estado === 'Atendido');
   const turnosCancelados = turnos.filter(turno => turno.estado === 'Cancelado');
 
@@ -111,14 +127,14 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   today.setHours(0, 0, 0, 0);
 
   const turnosParaGraficas = turnos.filter(turno => {
-    const fechaUTC = new Date(turno.fecha_cita);
-    const fechaColombia = new Date(fechaUTC.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-    const fechaTurno = new Date(fechaColombia);
-    fechaTurno.setHours(0, 0, 0, 0);
+    const fechaTurno = new Date(turno.fecha_cita);
+    const fechaHoy = new Date();
   
-    const esHoy = fechaTurno.getTime() === today.getTime();
-    return esHoy;
+    return fechaTurno.getFullYear() === fechaHoy.getFullYear() &&
+           fechaTurno.getMonth() === fechaHoy.getMonth() &&
+           fechaTurno.getDate() === fechaHoy.getDate();
   });
+  
   
   const getFilteredTurnos = () => {
     if (filterEstado === 'all') return turnos;
