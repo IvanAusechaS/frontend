@@ -22,10 +22,13 @@ const AppointmentHistory = ({ user, setUser }) => {
           navigate('/login');
           return;
         }
+
+        // Obtener los turnos del usuario
+        const userTurnos = await getUserTurnos();
+        console.log('Turnos obtenidos:', userTurnos);
+        setAppointments(userTurnos);
         setError('');
-      } 
-      
-      catch (err) {
+      } catch (err) {
         if (err.response?.status === 401) {
           setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
           localStorage.clear();
@@ -43,19 +46,17 @@ const AppointmentHistory = ({ user, setUser }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    // Forzar a que se muestre como UTC para evitar desplazamientos de zona horaria
     return date.toLocaleString('es-CO', {
-      timeZone: 'UTC', // Ajusta según la zona horaria del backend (probablemente UTC)
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      hour12: true,
+      timeZone: 'America/Bogota', // Ajusta según la zona horaria del backend
+      dateStyle: 'medium', // Solo muestra la fecha (ejemplo: 9 de mayo de 2025)
     });
   };
 
-  const isFutureTurno = (fechaCita) => {
+  const isFutureTurno = (fecha) => {
     const now = new Date();
-    const citaDate = new Date(fechaCita);
-    return citaDate > now;
+    const citaDate = new Date(fecha);
+    // Solo comparamos la fecha (ignoramos la hora)
+    return new Date(citaDate.toDateString()) > new Date(now.toDateString());
   };
 
   const handleCancel = async (turnoId) => {
@@ -73,7 +74,7 @@ const AppointmentHistory = ({ user, setUser }) => {
   };
 
   const getStatusClass = (status) => {
-    switch(status.toLowerCase()) {
+    switch (status.toLowerCase()) {
       case 'atendido':
         return 'status-completed';
       case 'en espera':
@@ -92,6 +93,9 @@ const AppointmentHistory = ({ user, setUser }) => {
       (filterTipo ? appointment.tipo_cita === filterTipo : true)
     );
   });
+
+  // Obtener los tipos de cita únicos para el filtro
+  const tiposCita = [...new Set(appointments.map(appointment => appointment.tipo_cita))];
 
   return (
     <div className="appointment-history-container">
@@ -127,8 +131,9 @@ const AppointmentHistory = ({ user, setUser }) => {
               className="filter-select"
             >
               <option value="">Todos</option>
-              <option value="medica">Médica</option>
-              <option value="administrativa">Administrativa</option>
+              {tiposCita.map(tipo => (
+                <option key={tipo} value={tipo}>{tipo}</option>
+              ))}
             </select>
           </div>
           
@@ -179,9 +184,9 @@ const AppointmentHistory = ({ user, setUser }) => {
               {filteredAppointments.map((appointment) => (
                 <div key={appointment.id} className="table-row">
                   <div className="table-cell">{appointment.numero}</div>
-                  <div className="table-cell">{appointment.punto_atencion.nombre}</div>
+                  <div className="table-cell">{appointment.punto_atencion?.nombre || 'Sin punto'}</div>
                   <div className="table-cell">{appointment.tipo_cita}</div>
-                  <div className="table-cell">{formatDate(appointment.fecha_cita)}</div>
+                  <div className="table-cell">{formatDate(appointment.fecha)}</div>
                   <div className="table-cell">
                     <span className={`status-badge ${getStatusClass(appointment.estado)}`}>
                       {appointment.estado}
@@ -191,7 +196,7 @@ const AppointmentHistory = ({ user, setUser }) => {
                     {appointment.prioridad === 'N' ? 'Normal' : 'Alta'}
                   </div>
                   <div className="table-cell actions-cell">
-                    {appointment.estado !== 'Cancelado' && isFutureTurno(appointment.fecha_cita) && (
+                    {appointment.estado !== 'Cancelado' && isFutureTurno(appointment.fecha) && (
                       <button
                         onClick={() => handleCancel(appointment.id)}
                         className="cancel-button"
@@ -222,7 +227,7 @@ const AppointmentHistory = ({ user, setUser }) => {
                 <div className="card-body">
                   <div className="card-detail">
                     <span className="detail-label">Punto:</span>
-                    <span className="detail-value">{appointment.punto_atencion.nombre}</span>
+                    <span className="detail-value">{appointment.punto_atencion?.nombre || 'Sin punto'}</span>
                   </div>
                   
                   <div className="card-detail">
@@ -232,7 +237,7 @@ const AppointmentHistory = ({ user, setUser }) => {
                   
                   <div className="card-detail">
                     <span className="detail-label">Fecha:</span>
-                    <span className="detail-value">{formatDate(appointment.fecha_cita)}</span>
+                    <span className="detail-value">{formatDate(appointment.fecha)}</span>
                   </div>
                   
                   <div className="card-detail">
@@ -241,7 +246,7 @@ const AppointmentHistory = ({ user, setUser }) => {
                   </div>
                 </div>
                 
-                {appointment.estado !== 'Cancelado' && isFutureTurno(appointment.fecha_cita) && (
+                {appointment.estado !== 'Cancelado' && isFutureTurno(appointment.fecha) && (
                   <div className="card-footer">
                     <button
                       onClick={() => handleCancel(appointment.id)}
