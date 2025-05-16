@@ -93,8 +93,9 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       const errorDetail = err.response?.data?.detail || err.response?.data?.error || 'Error desconocido';
       setError('Error al solicitar turno: ' + (errorDetail || err.message));
     }
-  };
 
+  };
+  
   return (
     <div className="pedir-turno-page">
       <div className="pedir-turno-container">
