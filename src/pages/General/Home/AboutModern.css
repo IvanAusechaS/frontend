@@ -1,0 +1,121 @@
+.about-modern-section {
+  background: #f8faff;
+  padding: 2.5rem 0 2.5rem 0;
+  width: 100%;
+}
+
+.about-modern-container {
+  display: flex;
+  justify-content: center;
+  gap: 2.7rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.about-modern-left {
+  flex: 1 1 380px;
+  min-width: 320px;
+}
+
+.about-modern-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.4rem;
+}
+
+.about-modern-subtitle {
+  color: #1976d2;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.1rem;
+}
+
+.about-modern-desc {
+  color: #333;
+  font-size: 1.08rem;
+  margin-bottom: 2.1rem;
+}
+
+.about-modern-stats {
+  display: flex;
+  gap: 1.3rem;
+  margin-top: 1.2rem;
+}
+
+.about-modern-stat-card {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1.1rem 1.7rem 0.8rem 1.7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  box-shadow: 0 2px 12px rgba(25,118,210,0.08);
+}
+
+.about-modern-stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.about-modern-stat-label {
+  font-size: 1.08rem;
+}
+
+.about-modern-right {
+  flex: 1 1 330px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  justify-content: center;
+}
+
+.about-modern-feature-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(25,118,210,0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+  padding: 1.2rem 1.3rem;
+  min-height: 80px;
+}
+
+.about-modern-feature-icon {
+  font-size: 2rem;
+  margin-top: 0.2rem;
+}
+
+.about-modern-feature-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem 0;
+  color: #1976d2;
+}
+
+.about-modern-feature-desc {
+  font-size: 1.01rem;
+  color: #333;
+}
+
+@media (max-width: 900px) {
+  .about-modern-container {
+    flex-direction: column;
+    gap: 2.2rem;
+    align-items: stretch;
+  }
+  .about-modern-left, .about-modern-right {
+    min-width: unset;
+  }
+  .about-modern-right {
+    gap: 0.8rem;
+  }
+  .about-modern-stats {
+    gap: 0.7rem;
+  }
+}

@@ -18,6 +18,8 @@ import AppointmentHistory from './pages/Appointments/AppointmentHistory';
 import ProfesionalDashboard from './pages/Dashboard/ProfesionalDashboard';
 import EstadisticasGraficas from './pages/Dashboard/EstadisticasGraficas';
 import Contact from './pages/General/Contact';
+import Servicios from './pages/General/Servicios/Servicios';
+import Equipo from './pages/General/Equipo/Equipo';
 import './styles/global.css';
 
 const App = () => {
@@ -101,6 +103,7 @@ const App = () => {
         <main className="main-content">
           {console.log('Renderizando Routes con user:', user)}
           <Routes>
+        <Route path="/equipo" element={<Equipo />} />
             {routes.map(({ path, component, exact }) => (
               <Route
                 key={path}
@@ -109,6 +112,7 @@ const App = () => {
                 element={<SafeRoute component={component} />}
               />
             ))}
+            <Route path="/servicios" element={<Servicios />} />
           </Routes>
         </main>
         <Footer />

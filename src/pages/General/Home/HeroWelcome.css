@@ -1,0 +1,133 @@
+.hero-section-welcome {
+  background: #fff;
+  width: 100%;
+  padding: 3.5rem 0 3.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-welcome-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-welcome-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.hero-welcome-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: #0a2253;
+  margin-bottom: 1.1rem;
+  line-height: 1.14;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+.hero-welcome-subtitle {
+  font-size: 1.3rem;
+  color: #233a5c;
+  margin-bottom: 2.1rem;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+.hero-welcome-button {
+  background: #e3f4fd;
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 1.18rem;
+  border: 2px solid #90caf9;
+  border-radius: 2rem;
+  padding: 0.9rem 2.7rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  box-shadow: 0 2px 12px rgba(25,118,210,0.07);
+}
+.hero-welcome-button:hover {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+.hero-welcome-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.robot-animation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.robot-lottie-img {
+  width: 170px;
+  height: 170px;
+  margin-bottom: 1.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e3f4fd 60%, #b3e5fc 100%);
+  box-shadow: 0 4px 22px rgba(25,118,210,0.11);
+}
+
+.robot-speech-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.robot-bubble {
+  background: #e3f4fd;
+  color: #0a2253;
+  font-size: 1.08rem;
+  border-radius: 1.2rem;
+  padding: 0.7rem 2.4rem 0.7rem 2.7rem;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+  position: relative;
+  font-weight: 600;
+  min-width: 320px;
+  max-width: 420px;
+  width: 100%;
+}
+.robot-bubble-step {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 50%;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-right: 0.7rem;
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 900px) {
+  .hero-welcome-grid {
+    grid-template-columns: 1fr;
+    gap: 2.2rem;
+  }
+  .hero-welcome-left, .hero-welcome-right {
+    align-items: center;
+    text-align: center;
+  }
+  .hero-welcome-title {
+    font-size: 2.2rem;
+  }
+}
