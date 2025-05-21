@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth'; // Importamos useAuth
 import { registerUser } from '../../../services/api';
 import './Register.css';
-import  useAuth  from '../../../hooks/useAuth';
+
 
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
