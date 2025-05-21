@@ -1,0 +1,138 @@
+.contact-section {
+  background: #fff;
+  width: 100%;
+  padding: 2.5rem 0 2.5rem 0;
+}
+
+.contact-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 0.3rem;
+}
+
+.contact-subtitle {
+  text-align: center;
+  color: #3b3b3b;
+  margin-bottom: 2.2rem;
+  font-size: 1.08rem;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact-info-card, .contact-form-card {
+  background: #fafbfc;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(25,118,210,0.11);
+  padding: 1.7rem 2rem 1.3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+}
+
+.contact-info-title, .contact-form-title {
+  color: #1976d2;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+
+.contact-divider {
+  border: none;
+  border-top: 2px solid #e3e8ee;
+  margin: 0 0 1.1rem 0;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+  margin-bottom: 1.2rem;
+}
+
+.contact-info-icon {
+  font-size: 2rem;
+  color: #1976d2;
+  min-width: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-info-label {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #222;
+  display: block;
+}
+
+.contact-info-value {
+  font-size: 1.01rem;
+  color: #222;
+  display: block;
+}
+
+.contact-info-hours {
+  font-size: 0.97rem;
+  color: #555;
+  margin-top: 1.2rem;
+}
+
+.contact-form-row {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.1rem;
+}
+
+.contact-input {
+  border: 1.5px solid #e3e8ee;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 1.05rem;
+  margin-bottom: 1.1rem;
+  width: 100%;
+  outline: none;
+  transition: border 0.2s;
+}
+.contact-input:focus {
+  border-color: #1976d2;
+}
+.contact-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.contact-btn {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.13rem;
+  border: none;
+  border-radius: 10px;
+  padding: 0.82rem 2.3rem;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(25,118,210,0.08);
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+.contact-btn:hover {
+  background: #1258a8;
+}
+
+@media (max-width: 900px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .contact-info-card, .contact-form-card {
+    padding: 1.2rem 0.7rem 1.1rem 0.7rem;
+    min-height: 220px;
+  }
+}

@@ -1,5 +1,134 @@
 /* frontend/src/components/Header.css */
 .header {
-    background-color: #03045e; /* Azul intenso */
-    padding: 0; /* El padding está en Nav */
+  background-color: #2083e3; /* Azul brillante */
+  padding: 0;
+  width: 100vw;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.5rem;
+  height: 76px;
+  background: transparent;
+}
+
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.navbar-logo {
+  height: 70px;
+  width: 110px;
+  object-fit: cover;
+  background: #e3e3e3;
+  border-radius: 8px;
+  padding: 0;
+  display: block;
+}
+
+
+
+.navbar-brand {
+  color: #fff;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+
+.navbar-link {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  background: transparent;
+  border: none;
+}
+
+
+.navbar-link:hover {
+  color: #e3e3e3;
+  background: rgba(255,255,255,0.08);
+}
+
+
+.navbar-turno-btn {
+  background: #fff;
+  color: #2083e3;
+  font-weight: 800;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.7rem;
+  font-size: 1.28rem;
+  margin-left: 1.5rem;
+  box-shadow: 0 2px 12px rgba(32,131,227,0.10);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.01em;
+}
+
+
+.navbar-turno-btn:hover {
+  background: #2083e3;
+  color: #fff;
+  border: 1.5px solid #fff;
+}
+
+
+.navbar-login-btn {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid #fff;
+  border-radius: 8px;
+  padding: 0.55rem 1.5rem; /* Ajuste de padding */
+  font-size: 1.35rem; /* Aumento de tamaño de fuente */
+  margin-left: 1.5rem;
+  padding: 0.48rem 1.3rem;
+  font-size: 1.18rem;
+  margin-left: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+
+.navbar-login-btn:hover {
+  background: #fff;
+  color: #2083e3;
+  border: 1.5px solid #2083e3;
+}
+
+
+@media (max-width: 900px) {
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 0.6rem 0.6rem;
+    gap: 0.5rem;
   }
+  .navbar-links {
+    gap: 1.1rem;
+  }
+  .navbar-logo {
+    height: 38px;
+    width: 52px;
+  }
+}

@@ -1,30 +1,123 @@
-/* frontend/src/components/Footer.css */
+/* EyeNova Footer - Moderno y atractivo */
 .footer {
-    background-color: #0077b6; /* Azul intenso */
-    padding: 20px;
-    text-align: center;
-    color: #ffffff; /* Azul muy claro */
+  background: linear-gradient(90deg, #1976d2 0%, #63a4ff 100%);
+  color: #fff;
+  padding: 0;
+  margin-top: 48px;
+  box-shadow: 0 -2px 16px rgba(25, 118, 210, 0.07);
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.footer-main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 36px 24px 12px 24px;
+  gap: 32px;
+}
+.footer-brand {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.footer-logo {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-slogan {
+  font-size: 1.05rem;
+  color: #e3f2fd;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.footer-nav {
+  flex: 2 1 340px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.footer-link {
+  color: #e3f2fd;
+  background: rgba(255,255,255,0.06);
+  padding: 7px 18px;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  display: inline-block;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+}
+.footer-link:hover {
+  background: #fff;
+  color: #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.16);
+  text-decoration: none;
+}
+.footer-bottom {
+  border-top: 1.5px solid #e3f2fd33;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px 18px 24px;
+  font-size: 0.98rem;
+  color: #e3f2fd;
+  background: none;
+}
+.footer-legal {
+  display: flex;
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .footer-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 32px 12px 10px 12px;
   }
-  
-  .footer-text {
-    margin: 0;
-    font-size: clamp(0.8rem, 2.5vw, 1rem);
+  .footer-nav {
+    justify-content: flex-start;
+    gap: 12px 18px;
   }
-  
-  .footer-links {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 12px 16px 12px;
   }
-  
-  .footer-link {
-    color: #bfe9ff; /* Azul claro */
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: color 0.3s;
+}
+@media (max-width: 600px) {
+  .footer-main {
+    padding: 24px 4px 6px 4px;
+    gap: 18px;
   }
-  
-  .footer-link:hover {
-    color: rgb(148, 237, 255); /* Azul vibrante */
+  .footer-logo {
+    font-size: 1.3rem;
   }
+  .footer-slogan {
+    font-size: 0.93rem;
+  }
+  .footer-nav {
+    gap: 8px 8px;
+    font-size: 0.97rem;
+  }
+  .footer-bottom {
+    padding: 8px 4px 12px 4px;
+    font-size: 0.92rem;
+  }
+}
