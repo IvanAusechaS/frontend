@@ -1,0 +1,143 @@
+.team-section {
+  background: #fff;
+  width: 100%;
+  padding: 2.5rem 0 2.5rem 0;
+}
+
+.team-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 0.3rem;
+}
+
+.team-subtitle {
+  text-align: center;
+  color: #3b3b3b;
+  margin-bottom: 2.2rem;
+  font-size: 1.08rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 2.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team-card {
+  background: #fafbfc;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(25,118,210,0.13);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 510px;
+  transition: box-shadow 0.3s;
+}
+.team-card:hover {
+  box-shadow: 0 8px 28px rgba(25,118,210,0.18);
+}
+
+.team-img-container {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  overflow: hidden;
+}
+.team-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.team-badge {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 0.36rem 1.1rem;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.97rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.13);
+}
+.team-badge-general {
+  background: linear-gradient(90deg, #1976d2 65%, #42a5f5 100%);
+  box-shadow: 0 2px 8px rgba(25,118,210,0.13);
+}
+.team-badge-cirugia {
+  background: linear-gradient(90deg, #388e3c 65%, #66bb6a 100%);
+  box-shadow: 0 2px 8px rgba(56,142,60,0.13);
+}
+.team-badge-contacto {
+  background: linear-gradient(90deg, #0288d1 65%, #26c6da 100%);
+  box-shadow: 0 2px 8px rgba(2,136,209,0.13);
+}
+
+.team-info {
+  padding: 1.2rem 1.3rem 1.1rem 1.3rem;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.team-name {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.2rem;
+}
+.team-specialty {
+  color: #1976d2;
+  font-size: 1.02rem;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+.team-specialty-cirugia {
+  color: #388e3c;
+}
+.team-specialty-contacto {
+  color: #0288d1;
+}
+.team-desc {
+  color: #333;
+  font-size: 1.04rem;
+  margin-top: 0.5rem;
+}
+
+.team-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.2rem;
+}
+.team-btn {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.13rem;
+  border: none;
+  border-radius: 10px;
+  padding: 0.82rem 2.3rem;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(25,118,210,0.08);
+  transition: background 0.2s;
+}
+.team-btn:hover {
+  background: #1258a8;
+}
+
+@media (max-width: 900px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .team-img-container {
+    height: 180px;
+  }
+}

@@ -1,0 +1,156 @@
+/* Estilos para la página de Equipo */
+.equipo-root {
+  background: #f8faff;
+  min-height: 100vh;
+  padding: 0;
+}
+.equipo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 16px 32px 16px;
+}
+.equipo-back-btn {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+.equipo-back-btn:hover {
+  color: #004ba0;
+}
+.equipo-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1976d2;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.equipo-subtitle {
+  font-size: 1.1rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 32px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.equipo-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.equipo-tab {
+  background: #e3f2fd;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1976d2;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.equipo-tab.active {
+  background: #1976d2;
+  color: #fff;
+}
+.equipo-tab:hover {
+  background: #bbdefb;
+}
+.equipo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+.equipo-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.equipo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+.equipo-card-img-container {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+}
+.equipo-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.equipo-chip {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: #1976d2;
+  color: #fff;
+  padding: 4px 16px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+}
+.equipo-card-content {
+  padding: 24px 20px 20px 20px;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.equipo-card-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 4px;
+}
+.equipo-card-specialty {
+  font-size: 1rem;
+  color: #388e3c;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.equipo-card-desc {
+  font-size: 0.98rem;
+  color: #444;
+  margin-bottom: 12px;
+  flex: 1 1 auto;
+}
+.equipo-divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 12px 0;
+}
+.equipo-card-edu,
+.equipo-card-cert {
+  font-size: 0.98rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+@media (max-width: 600px) {
+  .equipo-container {
+    padding: 24px 4px 16px 4px;
+  }
+  .equipo-title {
+    font-size: 1.5rem;
+  }
+  .equipo-card-content {
+    padding: 14px 8px 14px 8px;
+  }
+}
