@@ -20,9 +20,46 @@ const Login = ({ setUser }) => {
     }, 250);
   }, []);
 
+  // 🔐 Estado para controlar intentos
+  const [attempts, setAttempts] = useState(0);
+  const [lockTime, setLockTime] = useState(0); // en segundos
+  const [isLocked, setIsLocked] = useState(false);
+  
+  
+
+  useEffect(() => {
+    let timer;
+    if (isLocked && lockTime > 0) {
+      timer = setTimeout(() => {
+        setLockTime((prev) => prev - 1);
+      }, 1000);
+    } else if (lockTime === 0 && isLocked) {
+      setIsLocked(false);
+    }
+    return () => clearTimeout(timer);
+  }, [lockTime, isLocked]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login(email, password, setUser);
+    if (isLocked) return;
+
+    const result = await login(email, password, setUser);
+
+    if (!result || result.error) {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (newAttempts >= 3) {
+        const waitTime = 10 * Math.pow(2, newAttempts - 3); // Ej: 10s, 20s, 40s...
+        setLockTime(waitTime);
+        setIsLocked(true);
+      }
+    } else {
+      // Resetear estado al iniciar sesión con éxito
+      setAttempts(0);
+      setIsLocked(false);
+      setLockTime(0);
+    }
   };
 
   const handleRegisterRedirect = () => navigate('/register');
@@ -35,34 +72,42 @@ const Login = ({ setUser }) => {
         <p className="login-subtitle">Accede a tu cuenta con facilidad</p>
         {success && <p className="login-success">{success}</p>} {/* Add success message */}
         {error && <p className="login-error">{error}</p>}
+        {isLocked && (
+          <p className="login-warning">
+            Demasiados intentos. Intenta nuevamente en {lockTime} segundos.
+          </p>
+        )}
+          
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="login-input-group">
+              <label className="login-label">Correo Electrónico</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Ingresa tu correo"
+                className="login-input"
+                required
+                disabled={isLocked} // Deshabilitar el campo si está bloqueado
+              />
+            </div>
+            <div className="login-input-group">
+              <label className="login-label">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ingresa tu contraseña"
+                className="login-input"
+                required
+                disabled={isLocked}
 
-        {/* Formulario de login con email */}
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="login-input-group">
-            <label className="login-label">Correo Electrónico</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Ingresa tu correo"
-              className="login-input"
-              required
-            />
-          </div>
-          <div className="login-input-group">
-            <label className="login-label">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingresa tu contraseña"
-              className="login-input"
-              required
-            />
-          </div>
-          <button type="submit" className="login-button">Iniciar Sesión</button>
-        </form>
-
+              />
+            </div>
+            <button type="submit" className="login-button" disabled={isLocked}>
+              Iniciar Sesión
+              </button>
+          </form>
         {/* Enlaces adicionales */}
         <div className="login-links-container">
           <p className="login-link-text">

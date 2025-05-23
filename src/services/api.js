@@ -279,7 +279,7 @@ export const getProfesionalStats = async () => {
 export const getPendingTurnosByService = async () => {
   try {
     const response = await api.get('pending-turnos-by-service/');
-    console.log('Turnos pendientes por servicio:', response.data);
+    console.log('Turnos pendientes:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en getPendingTurnosByService:', error.response ? error.response.data : error.message);
