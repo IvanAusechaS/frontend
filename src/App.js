@@ -14,6 +14,7 @@ import ChangePassword from './pages/Auth/ChangePassword';
 import Profile from './pages/User/Profile';
 import CompleteProfile from './pages/User/CompleteProfile';
 import PedirTurno from './pages/Appointments/PedirTurno';
+import TurnoTablero from './pages/Appointments/TurnoTablero';
 import AppointmentHistory from './pages/Appointments/AppointmentHistory';
 import ProfesionalDashboard from './pages/Dashboard/ProfesionalDashboard';
 import EstadisticasGraficas from './pages/Dashboard/EstadisticasGraficas';
@@ -90,6 +91,7 @@ const App = () => {
     { path: '/profile', component: Profile },
     { path: '/complete-profile', component: CompleteProfile },
     { path: '/pedir-turno', component: PedirTurno },
+    { path: '/turno-tablero', component: TurnoTablero },
     { path: '/appointment-history', component: AppointmentHistory },
     { path: '/profesional', component: ProfesionalDashboard }, 
     { path: '/estadisticas-graficas', component: EstadisticasGraficas },
