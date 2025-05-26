@@ -14,10 +14,11 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [isPrioritario, setIsPrioritario] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [turnosPendientes, setTurnosPendientes] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = userProp || JSON.parse(localStorage.getItem('user')) || {};
+  const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -103,8 +104,9 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       const errorDetail = err.response?.data?.detail || err.response?.data?.error || 'Error desconocido';
       setError('Error al solicitar turno: ' + (errorDetail || err.message));
     }
-  };
 
+  };
+  
   return (
     <div className="pedir-turno-page">
       <div className="pedir-turno-container">
@@ -220,7 +222,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
                     </ul>
                   </div>
                 </div>
-
+                
                 <button
                   onClick={handleRequestTurno}
                   className="request-button"

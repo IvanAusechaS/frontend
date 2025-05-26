@@ -4,6 +4,7 @@ import useAuth from '../../../hooks/useAuth'; // Importamos useAuth
 import { registerUser } from '../../../services/api';
 import './Register.css';
 
+
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');

@@ -30,11 +30,13 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
   const fetchTurnos = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token || !user.es_profesional) {
+      if (!token || user.es_profesional !== true) {
+
         setError('Debes ser un profesional autenticado para acceder.');
         navigate('/login');
         return;
       }
+
       const data = await getTurnos();
       setTurnos(data);
 
