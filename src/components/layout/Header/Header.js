@@ -36,19 +36,46 @@ const Header = ({ user, setUser }) => {
   };
 
 
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  // Cierra el menú al navegar (opcional, UX)
+  const handleMenuNav = (fn) => {
+    fn();
+    setMenuOpen(false);
+  };
+
   return (
     <header className="header">
       <nav className="navbar">
-        <div className="navbar-left" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+        <div className="navbar-left" onClick={() => {navigate('/'); setMenuOpen(false);}} style={{cursor: 'pointer'}}>
           <img src={process.env.PUBLIC_URL + '/images/eyenova-logo.png'} alt="EyeNova Logo" className="navbar-logo" />
         </div>
-        <div className="navbar-links">
-          <span className="navbar-link" onClick={() => handleNavToSection('top')}>Inicio</span>
-          <span className="navbar-link" onClick={() => handleNavToSection('services-gallery-section')}>Servicios</span>
-          <span className="navbar-link" onClick={() => handleNavToSection('about-modern-section')}>Sobre Nosotros</span>
-          <span className="navbar-link" onClick={() => navigate('/contact')}>Contacto</span>
-          <button className="navbar-turno-btn" onClick={handleRequestTurno}>Pedir un Turno</button>
-          <button className="navbar-login-btn" onClick={() => navigate('/login')}>Iniciar Sesión</button>
+        <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">
+          <span className="navbar-hamburger-bar"></span>
+          <span className="navbar-hamburger-bar"></span>
+          <span className="navbar-hamburger-bar"></span>
+        </button>
+        <div className={`navbar-links${menuOpen ? ' open' : ''}`}>
+          <span className="navbar-link" onClick={() => handleMenuNav(() => handleNavToSection('top'))}>Inicio</span>
+          <span className="navbar-link" onClick={() => handleMenuNav(() => handleNavToSection('services-gallery-section'))}>Servicios</span>
+          <span className="navbar-link" onClick={() => handleMenuNav(() => handleNavToSection('about-modern-section'))}>Sobre Nosotros</span>
+          <span className="navbar-link" onClick={() => handleMenuNav(() => navigate('/contact'))}>Contacto</span>
+          <button className="navbar-turno-btn" onClick={() => handleMenuNav(handleRequestTurno)}>Pedir un Turno</button>
+
+          {/* Botones según tipo de usuario */}
+          {!user && (
+            <>
+              <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/login'))}>Iniciar Sesión</button>
+              <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/register'))}>Registrarse</button>
+            </>
+          )}
+          {user && (!user.rol || user.rol === 'usuario') && null}
+          {user && user.rol === 'profesional' && (
+            <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/profesional'))}>Dashboard</button>
+          )}
+          {user && user.rol === 'admin' && (
+            <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/admin'))}>Panel Administrativo</button>
+          )}
         </div>
       </nav>
     </header>

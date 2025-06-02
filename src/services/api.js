@@ -267,10 +267,19 @@ export const buscarUsuarioPorCedula = async (cedula) => {
 export const getProfesionalStats = async () => {
   try {
     const response = await api.get('profesional-stats/');
-    console.log('Estadísticas obtenidas:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en getProfesionalStats:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const cambiarRolUsuario = async (userId, nuevoRol) => {
+  try {
+    const response = await api.patch(`usuarios/${userId}/cambiar-rol/`, { rol: nuevoRol });
+    return response.data;
+  } catch (error) {
+    console.error('Error al cambiar rol:', error.response?.data || error.message);
     throw error;
   }
 };
