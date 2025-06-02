@@ -274,12 +274,25 @@ export const getProfesionalStats = async () => {
   }
 };
 
+// Función para cambiar el rol de un usuario
 export const cambiarRolUsuario = async (userId, nuevoRol) => {
   try {
     const response = await api.patch(`usuarios/${userId}/cambiar-rol/`, { rol: nuevoRol });
     return response.data;
   } catch (error) {
     console.error('Error al cambiar rol:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Función para obtener turnos pendientes por servicio
+export const getPendingTurnosByService = async () => {
+  try {
+    const response = await api.get('pending-turnos-by-service/');
+    console.log('Turnos pendientes:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en getPendingTurnosByService:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
