@@ -267,7 +267,6 @@ export const buscarUsuarioPorCedula = async (cedula) => {
 export const getProfesionalStats = async () => {
   try {
     const response = await api.get('profesional-stats/');
-    console.log('Estadísticas obtenidas:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error en getProfesionalStats:', error.response ? error.response.data : error.message);
@@ -275,7 +274,18 @@ export const getProfesionalStats = async () => {
   }
 };
 
-//agregar array de turnos pendientes por servicio
+// Función para cambiar el rol de un usuario
+export const cambiarRolUsuario = async (userId, nuevoRol) => {
+  try {
+    const response = await api.patch(`usuarios/${userId}/cambiar-rol/`, { rol: nuevoRol });
+    return response.data;
+  } catch (error) {
+    console.error('Error al cambiar rol:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Función para obtener turnos pendientes por servicio
 export const getPendingTurnosByService = async () => {
   try {
     const response = await api.get('pending-turnos-by-service/');
@@ -286,8 +296,6 @@ export const getPendingTurnosByService = async () => {
     throw error;
   }
 };
-
-
 
 // Exporta la instancia api como exportación por defecto
 export default api;

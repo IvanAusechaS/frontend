@@ -86,38 +86,80 @@
 @media (max-width: 900px) {
   .footer-main {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
-    padding: 32px 12px 10px 12px;
+    align-items: center;
+    gap: 28px;
+    padding: 32px 10px 10px 10px;
+    text-align: center;
+  }
+  .footer-brand {
+    align-items: center;
+  }
+  .footer-logo {
+    justify-content: center;
+    font-size: 1.6rem;
   }
   .footer-nav {
-    justify-content: flex-start;
-    gap: 12px 18px;
+    justify-content: center;
+    gap: 18px 28px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 12px;
+  }
+  .footer-link {
+    min-width: 120px;
+    font-size: 1.06rem;
+    padding: 12px 0;
+    border-radius: 14px;
+    margin: 2px 0;
+    display: inline-block;
+    text-align: center;
   }
   .footer-bottom {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 12px 16px 12px;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 6px 16px 6px;
+    width: 100%;
+    font-size: 0.98rem;
+    text-align: center;
+  }
+  .footer-legal {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
   }
 }
+
 @media (max-width: 600px) {
   .footer-main {
-    padding: 24px 4px 6px 4px;
-    gap: 18px;
+    padding: 18px 2px 4px 2px;
+    gap: 14px;
+    text-align: center;
   }
   .footer-logo {
-    font-size: 1.3rem;
+    font-size: 1.08rem;
   }
   .footer-slogan {
-    font-size: 0.93rem;
+    font-size: 0.89rem;
   }
   .footer-nav {
-    gap: 8px 8px;
+    gap: 6px 6px;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+  .footer-link {
     font-size: 0.97rem;
+    padding: 11px 0;
+    min-width: 100px;
+    border-radius: 12px;
   }
   .footer-bottom {
-    padding: 8px 4px 12px 4px;
-    font-size: 0.92rem;
+    padding: 6px 2px 10px 2px;
+    font-size: 0.90rem;
+    gap: 10px;
+  }
+  .footer-legal {
+    gap: 5px;
   }
 }
