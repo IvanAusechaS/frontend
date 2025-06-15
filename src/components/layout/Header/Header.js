@@ -69,12 +69,33 @@ const Header = ({ user, setUser }) => {
               <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/register'))}>Registrarse</button>
             </>
           )}
-          {user && (!user.rol || user.rol === 'usuario') && null}
-          {user && user.rol === 'profesional' && (
-            <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/profesional'))}>Dashboard</button>
-          )}
-          {user && user.rol === 'admin' && (
-            <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/admin'))}>Panel Administrativo</button>
+          {user && (
+            <>
+              {/* Botones específicos por rol */}
+              {user.es_profesional && !user.is_admin && (
+                <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/profesional'))}>
+                  Dashboard
+                </button>
+              )}
+              {user.is_admin && (
+                <button className="navbar-login-btn" onClick={() => handleMenuNav(() => navigate('/admin'))}>
+                  Panel Administrativo
+                </button>
+              )}
+              {/* Botón de Cerrar Sesión para todos los usuarios autenticados */}
+              <button 
+                className="navbar-login-btn" 
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('refreshToken');
+                  setUser(null);
+                  navigate('/');
+                  window.location.reload();
+                }}
+              >
+                Cerrar Sesión
+              </button>
+            </>
           )}
         </div>
       </nav>
