@@ -4,6 +4,8 @@ import { getCurrentTurnos, createTurno, getPuntosAtencionServices } from '../../
 import adPlaceholder from '../../../assets/images/publicidad.jpeg';
 import './PedirTurno.css';
 
+import { useLocation } from 'react-router-dom';
+
 const PedirTurno = ({ user: userProp, setUser }) => {
   const [currentTurnos, setCurrentTurnos] = useState([]);
   const [puntosServicios, setPuntosServicios] = useState({});
@@ -14,8 +16,17 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const [success, setSuccess] = useState('');
   const [turnosPendientes, setTurnosPendientes] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      const yOffset = -76; // altura del header
+      window.scrollTo({ top: 0 + yOffset, behavior: 'smooth' });
+    }, 250);
+  }, []);
 
   useEffect(() => {
     console.log('Usuario en PedirTurno:', user);

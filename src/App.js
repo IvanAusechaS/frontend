@@ -17,7 +17,10 @@ import PedirTurno from './pages/Appointments/PedirTurno';
 import AppointmentHistory from './pages/Appointments/AppointmentHistory';
 import ProfesionalDashboard from './pages/Dashboard/ProfesionalDashboard';
 import EstadisticasGraficas from './pages/Dashboard/EstadisticasGraficas';
+import AdminPanel from './pages/Admin/AdminPanel';
 import Contact from './pages/General/Contact';
+import Servicios from './pages/General/Servicios/Servicios';
+import Equipo from './pages/General/Equipo/Equipo';
 import './styles/global.css';
 
 const App = () => {
@@ -90,6 +93,7 @@ const App = () => {
     { path: '/pedir-turno', component: PedirTurno },
     { path: '/appointment-history', component: AppointmentHistory },
     { path: '/profesional', component: ProfesionalDashboard }, 
+    { path: '/admin', component: AdminPanel },
     { path: '/estadisticas-graficas', component: EstadisticasGraficas },
     { path: '/contact', component: Contact },
   ];
@@ -101,6 +105,7 @@ const App = () => {
         <main className="main-content">
           {console.log('Renderizando Routes con user:', user)}
           <Routes>
+        <Route path="/equipo" element={<Equipo />} />
             {routes.map(({ path, component, exact }) => (
               <Route
                 key={path}
@@ -109,6 +114,7 @@ const App = () => {
                 element={<SafeRoute component={component} />}
               />
             ))}
+            <Route path="/servicios" element={<Servicios />} />
           </Routes>
         </main>
         <Footer />

@@ -3,11 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import './Login.css';
 
+import { useLocation } from 'react-router-dom';
+
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, error, success } = useAuth(); // Add for the Delay
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      const yOffset = -76; // altura del header
+      window.scrollTo({ top: 0 + yOffset, behavior: 'smooth' });
+    }, 250);
+  }, []);
 
   // 🔐 Estado para controlar intentos
   const [attempts, setAttempts] = useState(0);
