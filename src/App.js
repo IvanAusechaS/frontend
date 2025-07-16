@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import styles
-import Header from './components/layout/Header';
+import Nav from './components/layout/Nav';
 import Footer from './components/layout/Footer';
 import Home from './pages/General/Home';
 import Login from './pages/Auth/Login';
@@ -17,6 +17,7 @@ import PedirTurno from './pages/Appointments/PedirTurno';
 import TurnoTablero from './pages/Appointments/TurnoTablero';
 import AppointmentHistory from './pages/Appointments/AppointmentHistory';
 import ProfesionalDashboard from './pages/Dashboard/ProfesionalDashboard';
+import AdminDashboard from './pages/Dashboard/AdminDashboard/AdminDashboard';
 import EstadisticasGraficas from './pages/Dashboard/EstadisticasGraficas';
 import Contact from './pages/General/Contact';
 import Servicios from './pages/General/Servicios/Servicios';
@@ -37,7 +38,9 @@ const App = () => {
           cedula: parsedUser.cedula || '',
           email: parsedUser.email || '',
           nombre: parsedUser.nombre || 'Usuario',
-          es_profesional: parsedUser.es_profesional || false
+          es_profesional: parsedUser.es_profesional || false,
+          is_admin: parsedUser.is_admin || parsedUser.rol === 'admin' || false,
+          rol: parsedUser.rol || (parsedUser.is_admin ? 'admin' : (parsedUser.es_profesional ? 'profesional' : 'usuario'))
         };
         setUser(normalizedUser);
       } catch (error) {
@@ -58,7 +61,9 @@ const App = () => {
       cedula: newUser.cedula || '',
       email: newUser.email || '',
       nombre: newUser.nombre || 'Usuario',
-      es_profesional: newUser.es_profesional || false
+      es_profesional: newUser.es_profesional || false,
+      is_admin: newUser.is_admin || newUser.rol === 'admin' || false,
+      rol: newUser.rol || (newUser.is_admin ? 'admin' : (newUser.es_profesional ? 'profesional' : 'usuario'))
     };
     setUser(normalizedUser);
     localStorage.setItem('user', JSON.stringify(normalizedUser));
@@ -94,6 +99,7 @@ const App = () => {
     { path: '/turno-tablero', component: TurnoTablero },
     { path: '/appointment-history', component: AppointmentHistory },
     { path: '/profesional', component: ProfesionalDashboard }, 
+    { path: '/dashboard/admin', component: AdminDashboard },
     { path: '/estadisticas-graficas', component: EstadisticasGraficas },
     { path: '/contact', component: Contact },
   ];
@@ -101,7 +107,7 @@ const App = () => {
   return (
     <Router>
       <div className="app-container">
-        <Header user={user} setUser={setNormalizedUser} />
+        <Nav user={user} setUser={setNormalizedUser} />
         <main className="main-content">
           {console.log('Renderizando Routes con user:', user)}
           <Routes>

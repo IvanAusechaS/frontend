@@ -26,18 +26,36 @@ const useAuth = () => {
 
   const login = async (email, password, setUser) => {
     const requestFn = () => api.post('login/', { email, password });
-    const response = await handleAuthRequest(
-      requestFn,
-      'Inicio de sesión exitoso.',
-      '/'
-    );
-    if (response) {
-      const { access, refresh, user } = response.data;
-      const normalizedUser = normalizeUser(user);
-      updateLocalStorage(access, refresh, normalizedUser);
-      setUser(normalizedUser);
+    try {
+      const response = await requestFn();
+      if (response && response.data) {
+        const { access, refresh, user } = response.data;
+        const normalizedUser = normalizeUser(user);
+        updateLocalStorage(access, refresh, normalizedUser);
+        setUser(normalizedUser);
+
+        // Redirección lógica según el rol
+        if (normalizedUser.rol === 'admin' || normalizedUser.is_admin) {
+          navigate('/dashboard/admin');
+          toast.success('Inicio de sesión como administrador', { autoClose: 3000 });
+        } else if (normalizedUser.es_profesional) {
+          navigate('/dashboard/profesional');
+          toast.success('Inicio de sesión como profesional', { autoClose: 3000 });
+        } else {
+          navigate('/');
+          toast.success('Inicio de sesión exitoso.', { autoClose: 3000 });
+        }
+        return normalizedUser;
+      }
+      return null;
+    } catch (err) {
+      const errorMessage = err.response?.data?.detail || 'Credenciales incorrectas';
+      setError(errorMessage);
+      console.error('Error en la solicitud:', err.response?.data || err.message);
+      return { error: errorMessage };
     }
   };
+
 
   const register = async (formData, setUser) => {
     const requestFn = () => api.post('register/', formData);
