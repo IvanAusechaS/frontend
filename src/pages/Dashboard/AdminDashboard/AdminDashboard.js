@@ -6,7 +6,7 @@ const AdminDashboard = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [newUser, setNewUser] = useState({ nombre: '', email: '', password: '', rol: 'usuario' });
+  const [newUser, setNewUser] = useState({ nombre: '', email: '', password: '', cedula: '', rol: 'usuario' });
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const AdminDashboard = ({ user }) => {
     try {
       await createUser(newUser);
       setSuccess('Usuario creado correctamente');
-      setNewUser({ nombre: '', email: '', password: '', rol: 'usuario' });
+      setNewUser({ nombre: '', email: '', password: '', cedula: '', rol: 'usuario' });
       fetchUsers();
     } catch (err) {
       setError('No se pudo crear el usuario');
@@ -76,6 +76,13 @@ const AdminDashboard = ({ user }) => {
             onChange={e => setNewUser({ ...newUser, password: e.target.value })}
             required
           />
+           <input
+            type="text"
+            placeholder="Cédula"
+            value={newUser.cedula}
+            onChange={e => setNewUser({ ...newUser, cedula: e.target.value })}
+            required
+          />
           <select
             value={newUser.rol}
             onChange={e => setNewUser({ ...newUser, rol: e.target.value })}
@@ -97,6 +104,7 @@ const AdminDashboard = ({ user }) => {
               <tr>
                 <th>Nombre</th>
                 <th>Email</th>
+                <th>Cédula</th>
                 <th>Rol</th>
                 <th>Acciones</th>
               </tr>
@@ -106,6 +114,7 @@ const AdminDashboard = ({ user }) => {
                 <tr key={u.id}>
                   <td>{u.nombre}</td>
                   <td>{u.email}</td>
+                  <td>{u.cedula}</td>
                   <td>
                     <select
                       value={u.rol}
