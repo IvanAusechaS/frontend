@@ -98,11 +98,7 @@ const App = () => {
     { path: '/pedir-turno', component: PedirTurno },
     { path: '/appointment-history', component: AppointmentHistory },
     { path: '/profesional', component: ProfesionalDashboard }, 
-<<<<<<< HEAD
-    { path: '/admin', component: AdminPanel },
-=======
     { path: '/dashboard/admin', component: AdminDashboard },
->>>>>>> origin/jamh
     { path: '/estadisticas-graficas', component: EstadisticasGraficas },
     { path: '/contact', component: Contact },
   ];
