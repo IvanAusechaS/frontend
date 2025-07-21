@@ -297,5 +297,26 @@ export const getPendingTurnosByService = async () => {
   }
 };
 
+
+
+// --- FUNCIONES PARA ADMINISTRADOR ---
+// Obtener todos los usuarios
+export const getAllUsers = async () => {
+  const response = await api.get('usuarios/');
+  return response.data;
+};
+
+// Actualizar el rol de un usuario
+export const updateUserRole = async (userId, newRole) => {
+  const response = await api.patch(`usuarios/${userId}/rol/`, { rol: newRole });
+  return response.data;
+};
+
+// Crear un nuevo usuario
+export const createUser = async (userData) => {
+  const response = await api.post('usuarios/', userData);
+  return response.data;
+};
+
 // Exporta la instancia api como exportación por defecto
 export default api;

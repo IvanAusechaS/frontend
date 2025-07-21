@@ -1,0 +1,78 @@
+.admin-dashboard {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(32,131,227,0.08);
+  padding: 32px 24px;
+}
+.admin-dashboard h2 {
+  color: #2083e3;
+  margin-bottom: 18px;
+  font-size: 2.1rem;
+}
+.admin-dashboard h3 {
+  color: #1d4b8f;
+  margin-top: 24px;
+  margin-bottom: 10px;
+}
+.admin-create-user {
+  margin-bottom: 28px;
+}
+.admin-create-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.admin-create-form input,
+.admin-create-form select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.admin-create-form button {
+  background: #2083e3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-create-form button:hover {
+  background: #1861a8;
+}
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #f9f9f9;
+}
+.admin-users-table th, .admin-users-table td {
+  border: 1px solid #e3e3e3;
+  padding: 8px 10px;
+  text-align: left;
+}
+.admin-users-table th {
+  background: #2083e3;
+  color: #fff;
+}
+.admin-users-table select {
+  min-width: 120px;
+}
+.admin-error {
+  color: #d32f2f;
+  background: #fdecea;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.admin-success {
+  color: #388e3c;
+  background: #e8f5e9;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}

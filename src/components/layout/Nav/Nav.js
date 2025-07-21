@@ -56,17 +56,38 @@ const Nav = ({ user, setUser }) => {
               >
                 Inicio
               </button>
-              {user.es_profesional ? (
+              {user.is_admin || user.rol === 'admin' ? (
+                <>
+                  <button
+                    className="nav-menu-item"
+                    onClick={() => {
+                      navigate('/dashboard/admin');
+                      setIsOpen(false);
+                    }}
+                  >
+                    Panel de Administrador
+                  </button>
+                  <button
+                    className="nav-menu-item"
+                    onClick={() => {
+                      navigate('/admin/usuarios');
+                      setIsOpen(false);
+                    }}
+                  >
+                    Gestión de Roles
+                  </button>
+                </>
+              ) : user.es_profesional ? (
                 <button
                   className="nav-menu-item"
                   onClick={() => {
-                    navigate('/profesional');
+                    navigate('/dashboard/profesional');
                     setIsOpen(false);
                   }}
                 >
-                  Dashboard
+                  Dashboard Profesional
                 </button>
-              ) : (
+              ) : (!user.is_admin && user.rol !== 'admin' && !user.es_profesional) ? (
                 <button
                   className="nav-menu-item"
                   onClick={() => {
@@ -76,7 +97,7 @@ const Nav = ({ user, setUser }) => {
                 >
                   Pedir Turno
                 </button>
-              )}
+              ) : null}
               <div className="nav-user-container">
                 <span
                   className="nav-menu-item nav-user"
