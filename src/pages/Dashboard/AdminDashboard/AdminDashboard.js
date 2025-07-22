@@ -40,7 +40,7 @@ const AdminDashboard = ({ user }) => {
     try {
       await createUser(newUser);
       setSuccess('Usuario creado correctamente');
-      setNewUser({ nombre: '', email: '', password: '', cedula: '', rol: 'usuario' });
+      setNewUser({ nombre: '', email: '', password: '', cedula: '', rol: '' });
       fetchUsers();
     } catch (err) {
       setError('No se pudo crear el usuario');
