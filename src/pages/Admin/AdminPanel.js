@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './AdminPanel.css';
-import { getUsuarios, createUsuario, getProfesionalStats, cambiarRolUsuario } from '../../services/api';
+import { getUsuarios, createUsuario, getProfesionalStats, cambiarRolUsuario, deleteUsuario } from '../../services/api';
 import { UserForm } from './AdminPanel.forms';
 
 const AdminPanel = () => {
@@ -157,6 +157,24 @@ const AdminPanel = () => {
                         Hacer Usuario
                       </button>
                     )}
+                    <button 
+                      onClick={async () => {
+                        if (window.confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.nombre}? Esta acción no se puede deshacer.`)) {
+                          try {
+                            await deleteUsuario(user.id);
+                            const usuariosActualizados = await getUsuarios();
+                            setUsers(usuariosActualizados);
+                            setFormSuccess('Usuario eliminado correctamente');
+                          } catch (err) {
+                            setFormError('Error al eliminar usuario');
+                          }
+                        }
+                      }}
+                      className="btn-role btn-role-delete"
+                      style={{background: '#e74c3c', color: 'white', marginLeft: 8}}
+                    >
+                      Eliminar
+                    </button>
                   </td>
                 </tr>
               ))}

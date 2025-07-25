@@ -101,6 +101,7 @@ const App = () => {
     { path: '/appointment-history', component: AppointmentHistory },
     { path: '/profesional', component: ProfesionalDashboard }, 
     { path: '/dashboard/admin', component: AdminDashboard },
+    { path: '/admin-panel', component: AdminPanel },
     { path: '/estadisticas-graficas', component: EstadisticasGraficas },
     { path: '/contact', component: Contact },
   ];

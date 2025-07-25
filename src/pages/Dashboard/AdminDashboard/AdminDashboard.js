@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllUsers, updateUserRole, createUser } from '../../../services/api';
+import { getAllUsers, updateUserRole, createUser, deleteUsuario } from '../../../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ user }) => {
@@ -129,7 +129,24 @@ const AdminDashboard = ({ user }) => {
                   <td>
                     {u.id === user.id ? (
                       <span>(Tú)</span>
-                    ) : null}
+                    ) : (
+                      <button
+                        className="btn-role btn-role-delete"
+                        onClick={async () => {
+                          if (window.confirm(`¿Estás seguro de que deseas eliminar al usuario ${u.nombre}? Esta acción no se puede deshacer.`)) {
+                            try {
+                              await deleteUsuario(u.id);
+                              setSuccess('Usuario eliminado correctamente');
+                              fetchUsers();
+                            } catch (err) {
+                              setError('Error al eliminar usuario');
+                            }
+                          }
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
