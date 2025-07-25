@@ -318,5 +318,16 @@ export const createUser = async (userData) => {
   return response.data;
 };
 
+// Eliminar usuario por ID
+export const deleteUsuario = async (userId) => {
+  try {
+    const response = await api.delete(`usuarios/${userId}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // Exporta la instancia api como exportación por defecto
 export default api;
