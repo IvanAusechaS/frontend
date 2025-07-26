@@ -23,6 +23,7 @@ import AdminPanel from './pages/Admin/AdminPanel';
 import Contact from './pages/General/Contact';
 import Servicios from './pages/General/Servicios/Servicios';
 import Equipo from './pages/General/Equipo/Equipo';
+import AdminUsuarios from './pages/AdminUsuarios';
 import './styles/global.css';
 
 const App = () => {
@@ -113,7 +114,7 @@ const App = () => {
         <main className="main-content">
           {console.log('Renderizando Routes con user:', user)}
           <Routes>
-        <Route path="/equipo" element={<Equipo />} />
+            <Route path="/equipo" element={<Equipo />} />
             {routes.map(({ path, component, exact }) => (
               <Route
                 key={path}
@@ -123,6 +124,7 @@ const App = () => {
               />
             ))}
             <Route path="/servicios" element={<Servicios />} />
+            <Route path="/admin/usuarios" element={<AdminUsuarios />} />
           </Routes>
         </main>
         <Footer />

@@ -39,7 +39,7 @@ const Nav = ({ user, setUser }) => {
     <nav className="nav">
       <div className="nav-container">
         <h1 className="nav-logo" onClick={() => navigate('/')}>
-          Sistema de Turnos
+          EyeNova
         </h1>
         <button className="nav-menu-button" onClick={() => setIsOpen(!isOpen)}>
           ☰
@@ -74,7 +74,7 @@ const Nav = ({ user, setUser }) => {
                       setIsOpen(false);
                     }}
                   >
-                    Gestión de Roles
+                    Gestión de Puntos de Atención
                   </button>
                 </>
               ) : user.es_profesional ? (
