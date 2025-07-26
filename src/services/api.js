@@ -64,6 +64,19 @@ api.interceptors.response.use(
 );
 
 // Funciones que usan el interceptor
+// Actualizar servicios de un punto de atención
+export const updateServiciosPuntoAtencion = async (puntoId, serviciosTexto) => {
+  try {
+    const response = await api.patch(`puntos-atencion/${puntoId}/servicios/`, {
+      servicios_texto: serviciosTexto
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error en updateServiciosPuntoAtencion:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
 export const getPuntosAtencion = async () => {
   try {
     const response = await api.get('puntos-atencion/');
@@ -308,25 +321,28 @@ export const getAllUsers = async () => {
 
 // Actualizar el rol de un usuario
 export const updateUserRole = async (userId, newRole) => {
-  const response = await api.patch(`usuarios/${userId}/rol/`, { rol: newRole });
-  return response.data;
+const response = await api.patch(`usuarios/${userId}/rol/`, { rol: newRole });
+return response.data;
 };
 
 // Crear un nuevo usuario
 export const createUser = async (userData) => {
-  const response = await api.post('usuarios/', userData);
-  return response.data;
+return api.post('usuarios/', userData).then(res => res.data);
+}
+
+// Asignar punto de atención a profesional
+export const assignPuntoToProfesional = (profesionalId, puntoAtencionId) => {
+return api.post('asignar-punto/', { profesional_id: profesionalId, punto_atencion_id: puntoAtencionId }).then(res => res.data);
 };
 
 // Eliminar usuario por ID
 export const deleteUsuario = async (userId) => {
-  try {
-    const response = await api.delete(`usuarios/${userId}/`);
-    return response.data;
-  } catch (error) {
-    console.error('Error al eliminar usuario:', error.response?.data || error.message);
-    throw error;
-  }
+  return api.delete(`usuarios/${userId}/`).then(res => res.data);
+};
+
+// Eliminar punto de atención por ID
+export const deletePuntoAtencion = async (puntoId) => {
+  return api.delete(`puntos-atencion/${puntoId}/`).then(res => res.data);
 };
 
 // Exporta la instancia api como exportación por defecto
