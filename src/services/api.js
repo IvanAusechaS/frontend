@@ -178,14 +178,17 @@ export const loginUser = async (email, password) => {
   try {
     const response = await api.post('login/', { email, password });
     console.log('Respuesta de login:', response.data);
+    console.log('Datos del usuario tras login:', response.data.user);
     if (!response.data.user || !response.data.user.id) {
       console.error('ID del usuario no encontrado en la respuesta del login');
       throw new Error('ID del usuario no encontrado');
     }
-    localStorage.setItem('userId', response.data.user.id); // Cambiar a response.data.user.id
+    localStorage.setItem('userId', response.data.user.id);
     localStorage.setItem('token', response.data.access);
     localStorage.setItem('refreshToken', response.data.refresh);
-    console.log('userId almacenado:', localStorage.getItem('userId')); // Añadir este log
+    const userData = response.data.user;
+    localStorage.setItem('user', JSON.stringify(userData)); // Asegúrate de guardar solo user
+    console.log('Usuario almacenado en localStorage:', JSON.parse(localStorage.getItem('user')));
     return response.data;
   } catch (error) {
     console.error('Error en loginUser:', error.response ? error.response.data : error.message);
@@ -210,9 +213,9 @@ export const registerUser = async (userData) => {
     console.log('Usuario registrado:', response.data);
     return response.data;
   } catch (error) {
-    const errorDetails = error.response ? error.response.data : error.message;
+    const errorDetails = error.response ? error.response.data : { error: error.message, details: 'Error desconocido' };
     console.error('Error en registerUser:', JSON.stringify(errorDetails, null, 2));
-    throw error;
+    throw errorDetails; 
   }
 };
 
@@ -346,4 +349,20 @@ export const deletePuntoAtencion = async (puntoId) => {
 };
 
 // Exporta la instancia api como exportación por defecto
+export const enviarMensajeContacto = async (formData) => {
+  try {
+    // Usar tu instancia api existente que ya tiene la baseURL configurada
+    const response = await api.post('contact/', formData);
+    
+    return {
+      success: true,
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Error en enviarMensajeContacto:', error);
+    const errorMessage = error.response?.data?.error || 'Error al enviar el mensaje';
+    throw new Error(errorMessage);
+  }
+};
+
 export default api;

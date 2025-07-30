@@ -4,7 +4,6 @@ import useAuth from '../../../hooks/useAuth'; // Importamos useAuth
 import { registerUser } from '../../../services/api';
 import './Register.css';
 
-
 const Register = ({ setUser }) => {
   const [cedula, setCedula] = useState('');
   const [nombre, setNombre] = useState('');
@@ -38,9 +37,28 @@ const Register = ({ setUser }) => {
       setUser(normalizedUser);
       setSuccess('Registro exitoso. Redirigiendo...');
       setError('');
-      setTimeout(() => navigate('/'), 2000);
+      setTimeout(() => navigate('/login/'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al registrarse');
+      console.log('Error completo recibido:', JSON.stringify(err, null, 2)); // Depuración detallada
+      let errorMessage = 'Error al registrarse';
+      // Intentar extraer el mensaje de error de diferentes estructuras
+      if (err && typeof err === 'object') {
+        if (err.error && typeof err.error === 'string' && err.error.includes('ya está registrado')) {
+          errorMessage = 'Este correo ya está registrado. Por favor, usa otro correo o inicia sesión.';
+        } else if (err.details && typeof err.details === 'string' && err.details.includes('ya está registrado')) {
+          errorMessage = 'Este correo ya está registrado. Por favor, usa otro correo o inicia sesión.';
+        } else if (err.error && typeof err.error === 'object' && err.error.email) {
+          const emailError = err.error.email[0];
+          if (emailError && typeof emailError === 'string' && emailError.includes('ya existe')) {
+            errorMessage = 'Este correo ya está registrado. Por favor, usa otro correo o inicia sesión.';
+          } else if (emailError && typeof emailError === 'object' && emailError.string && emailError.string.includes('ya existe')) {
+            errorMessage = 'Este correo ya está registrado. Por favor, usa otro correo o inicia sesión.';
+          }
+        } else if (err.data && err.data.error && err.data.error.includes('ya está registrado')) {
+          errorMessage = 'Este correo ya está registrado. Por favor, usa otro correo o inicia sesión.';
+        }
+      }
+      setError(errorMessage);
       setSuccess('');
     }
   };

@@ -1,20 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logoutUser } from '../../../services/api'; // Importar logoutUser
+import { logoutUser } from '../../../services/api';
 import './Nav.css';
 
 const Nav = ({ user, setUser }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+  const navRef = useRef(null);
 
   useEffect(() => {
     console.log('Nav renderizado con user:', user);
   }, [user]);
 
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = async () => {
     try {
-      await logoutUser(); // Usar logoutUser de api.js
+      await logoutUser();
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
@@ -35,13 +51,26 @@ const Nav = ({ user, setUser }) => {
     setIsProfileOpen(!isProfileOpen);
   };
 
+  const toggleMainMenu = () => {
+    setIsOpen(!isOpen);
+    // Cerrar el menú de perfil si está abierto
+    if (isProfileOpen) {
+      setIsProfileOpen(false);
+    }
+  };
+
+  const closeMenus = () => {
+    setIsOpen(false);
+    setIsProfileOpen(false);
+  };
+
   return (
-    <nav className="nav">
+    <nav className="nav" ref={navRef}>
       <div className="nav-container">
         <h1 className="nav-logo" onClick={() => navigate('/')}>
           EyeNova
         </h1>
-        <button className="nav-menu-button" onClick={() => setIsOpen(!isOpen)}>
+        <button className="nav-menu-button" onClick={toggleMainMenu}>
           ☰
         </button>
         <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
@@ -51,7 +80,7 @@ const Nav = ({ user, setUser }) => {
                 className="nav-menu-item"
                 onClick={() => {
                   navigate('/');
-                  setIsOpen(false);
+                  closeMenus();
                 }}
               >
                 Inicio
@@ -62,7 +91,7 @@ const Nav = ({ user, setUser }) => {
                     className="nav-menu-item"
                     onClick={() => {
                       navigate('/dashboard/admin');
-                      setIsOpen(false);
+                      closeMenus();
                     }}
                   >
                     Panel de Administrador
@@ -71,7 +100,7 @@ const Nav = ({ user, setUser }) => {
                     className="nav-menu-item"
                     onClick={() => {
                       navigate('/admin/usuarios');
-                      setIsOpen(false);
+                      closeMenus();
                     }}
                   >
                     Gestión de Puntos de Atención
@@ -81,8 +110,8 @@ const Nav = ({ user, setUser }) => {
                 <button
                   className="nav-menu-item"
                   onClick={() => {
-                    navigate('/dashboard/profesional');
-                    setIsOpen(false);
+                    navigate('/profesional');
+                    closeMenus();
                   }}
                 >
                   Dashboard Profesional
@@ -92,7 +121,7 @@ const Nav = ({ user, setUser }) => {
                   className="nav-menu-item"
                   onClick={() => {
                     navigate('/pedir-turno');
-                    setIsOpen(false);
+                    closeMenus();
                   }}
                 >
                   Pedir Turno
@@ -111,8 +140,7 @@ const Nav = ({ user, setUser }) => {
                       className="nav-profile-item"
                       onClick={() => {
                         navigate('/profile');
-                        setIsOpen(false);
-                        setIsProfileOpen(false);
+                        closeMenus();
                       }}
                     >
                       Perfil
@@ -121,8 +149,7 @@ const Nav = ({ user, setUser }) => {
                       className="nav-profile-item"
                       onClick={() => {
                         navigate('/appointment-history');
-                        setIsOpen(false);
-                        setIsProfileOpen(false);
+                        closeMenus();
                       }}
                     >
                       Mis Citas
@@ -139,7 +166,7 @@ const Nav = ({ user, setUser }) => {
               className="nav-menu-item nav-login"
               onClick={() => {
                 navigate('/login');
-                setIsOpen(false);
+                closeMenus();
               }}
             >
               Iniciar Sesión

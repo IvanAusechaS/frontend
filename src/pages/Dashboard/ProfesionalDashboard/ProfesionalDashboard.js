@@ -27,64 +27,86 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
     setLoading(false);
   }, [navigate, setUser]);
 
+  const reorderTurnos = (turnos) => {
+    const normales = turnos.filter(t => t.prioridad === 'N');
+    const prioritarios = turnos.filter(t => t.prioridad === 'P');
+    const reordered = [];
+
+    let i = 0, j = 0;
+    while (i < normales.length || j < prioritarios.length) {
+      // Agregar dos normales
+      if (i < normales.length) {
+        reordered.push(normales[i]);
+        i++;
+      }
+      if (i < normales.length) {
+        reordered.push(normales[i]);
+        i++;
+      }
+      // Agregar un prioritario
+      if (j < prioritarios.length) {
+        reordered.push(prioritarios[j]);
+        j++;
+      }
+    }
+    return reordered;
+  };
+
   const fetchTurnos = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token || user.es_profesional !== true) {
-
+      if (!token || !user || user.es_profesional !== true) {
         setError('Debes ser un profesional autenticado para acceder.');
         navigate('/login');
         return;
       }
 
-      const data = await getTurnos();
-      setTurnos(data);
+      if (!user.punto_atencion_id_read) {
+        setError('No estás asignado a un punto de atención. Contacta al administrador.');
+        return;
+      }
 
-      const puntoAtencionId = user.punto_atencion_id || 1;
-      const turnosOrdenadosData = await getCurrentTurnos(puntoAtencionId);
-      setTurnosEnEspera(turnosOrdenadosData.turnos || []);
-
+      const [turnosData, currentTurnosData] = await Promise.all([
+        getTurnos(),
+        getCurrentTurnos(user.punto_atencion_id_read)
+      ]);
+      setTurnos(turnosData || []);
+      const reorderedTurnos = reorderTurnos(currentTurnosData.turnos || []);
+      setTurnosEnEspera(reorderedTurnos);
       setLoading(false);
     } catch (err) {
       handleError(err);
     }
-  }, [navigate, user.es_profesional, user.punto_atencion_id, handleError]);
+  }, [navigate, user, handleError]);
 
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
-      const turno = turnos.find(t => t.id === turnoId);
-      if (!turno) throw new Error('Turno no encontrado');
+      console.log('Cambiando estado de turno ID:', turnoId, 'a:', nuevoEstado); // Depuración
+      // Buscar en turnos y turnosEnEspera
+      const turno = [...turnos, ...turnosEnEspera].find(t => t.id === turnoId);
+      if (!turno) {
+        setError('Turno no encontrado');
+        return;
+      }
 
-      const data = {
-        estado: nuevoEstado,
-      };
-
+      const data = { estado: nuevoEstado };
       const updatedTurno = await updateTurno(turnoId, data);
-      let updatedTurnos = turnos.map(t =>
-        t.id === turnoId ? { ...t, ...updatedTurno } : t
-      );
+      let updatedTurnos = turnos.map(t => t.id === turnoId ? { ...t, ...updatedTurno } : t);
       setTurnos(updatedTurnos);
 
-      const puntoAtencionId = user.punto_atencion_id || 1;
-      const turnosOrdenadosData = await getCurrentTurnos(puntoAtencionId);
-
-      // Si el cambio es a "Atendido" o "Cancelado" desde "En progreso", quitar de las colas
+      const turnosOrdenadosData = await getCurrentTurnos(user.punto_atencion_id_read);
+      const reorderedTurnos = reorderTurnos(turnosOrdenadosData.turnos || []);
       if (nuevoEstado === 'Atendido' || nuevoEstado === 'Cancelado') {
-        setTurnosEnEspera(turnosOrdenadosData.turnos || []);
+        setTurnosEnEspera(reorderedTurnos);
       } else if (nuevoEstado === 'En progreso') {
-        // Si se pasa a "En progreso" (desde "Atender" en Sala de Espera), devolver el turno actual a la cola
         const turnoActual = turnos.find(t => t.estado === 'En progreso' && t.id !== turnoId);
         if (turnoActual) {
-          const dataBackToQueue = {
-            estado: 'En espera',
-          };
+          const dataBackToQueue = { estado: 'En espera' };
           await updateTurno(turnoActual.id, dataBackToQueue);
-          updatedTurnos = updatedTurnos.map(t =>
-            t.id === turnoActual.id ? { ...t, estado: 'En espera' } : t
-          );
+          updatedTurnos = updatedTurnos.map(t => t.id === turnoActual.id ? { ...t, estado: 'En espera' } : t);
         }
         setTurnos(updatedTurnos);
-        setTurnosEnEspera(turnosOrdenadosData.turnos || []);
+        setTurnosEnEspera(reorderedTurnos);
       }
 
       setError('');
@@ -122,7 +144,7 @@ const ProfesionalDashboard = ({ user: userProp, setUser }) => {
 
   const turnosParaGraficas = turnos;
   console.log('Turnos enviados a EstadisticasGraficas:', turnosParaGraficas);
-  
+
   const getFilteredTurnos = () => {
     if (filterEstado === 'all') return turnos;
     return turnos.filter(turno => turno.estado === filterEstado);

@@ -42,6 +42,8 @@
   display: flex;
   gap: 1.3rem;
   margin-top: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .about-modern-stat-card {
@@ -53,6 +55,8 @@
   flex-direction: column;
   align-items: center;
   min-width: 100px;
+  flex: 1 1 auto;
+  max-width: 150px;
   box-shadow: 0 2px 12px rgba(25,118,210,0.08);
 }
 
@@ -64,6 +68,7 @@
 
 .about-modern-stat-label {
   font-size: 1.08rem;
+  text-align: center;
 }
 
 .about-modern-right {
@@ -117,5 +122,66 @@
   }
   .about-modern-stats {
     gap: 0.7rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .about-modern-stats {
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .about-modern-stat-card {
+    flex: 1 1 calc(33.333% - 0.7rem);
+    min-width: 85px;
+    max-width: none;
+    padding: 1rem 1.2rem 0.7rem 1.2rem;
+  }
+  
+  .about-modern-stat-num {
+    font-size: 1.7rem;
+  }
+  
+  .about-modern-stat-label {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-modern-stats {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: stretch;
+  }
+  
+  .about-modern-stat-card {
+    flex: none;
+    max-width: none;
+    min-width: unset;
+    padding: 1.2rem 1.5rem 1rem 1.5rem;
+  }
+  
+  .about-modern-stat-num {
+    font-size: 1.8rem;
+  }
+  
+  .about-modern-stat-label {
+    font-size: 1.05rem;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 320px) {
+  .about-modern-stat-card {
+    padding: 1rem 1.2rem 0.8rem 1.2rem;
+  }
+  
+  .about-modern-stat-num {
+    font-size: 1.6rem;
+  }
+  
+  .about-modern-stat-label {
+    font-size: 0.95rem;
   }
 }

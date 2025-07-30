@@ -1,31 +1,26 @@
+// Login.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import './Login.css';
 
-import { useLocation } from 'react-router-dom';
-
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error, success } = useAuth(); // Add for the Delay
+  const { login, error } = useAuth(); // Eliminamos success ya que no se usa
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setTimeout(() => {
-      const yOffset = -76; // altura del header
+      const yOffset = -76;
       window.scrollTo({ top: 0 + yOffset, behavior: 'smooth' });
     }, 250);
   }, []);
 
-  // 🔐 Estado para controlar intentos
   const [attempts, setAttempts] = useState(0);
-  const [lockTime, setLockTime] = useState(0); // en segundos
+  const [lockTime, setLockTime] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
-  
-  
 
   useEffect(() => {
     let timer;
@@ -43,22 +38,32 @@ const Login = ({ setUser }) => {
     e.preventDefault();
     if (isLocked) return;
 
-    const result = await login(email, password, setUser);
+    try {
+      const result = await login(email, password, setUser);
+      if (!result || result.error) {
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
 
-    if (!result || result.error) {
+        if (newAttempts >= 3) {
+          const waitTime = 10 * Math.pow(2, newAttempts - 3);
+          setLockTime(waitTime);
+          setIsLocked(true);
+        }
+      } else {
+        setAttempts(0);
+        setIsLocked(false);
+        setLockTime(0);
+      }
+    } catch (err) {
+      console.error('Error en handleLogin:', err);
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
 
       if (newAttempts >= 3) {
-        const waitTime = 10 * Math.pow(2, newAttempts - 3); // Ej: 10s, 20s, 40s...
+        const waitTime = 10 * Math.pow(2, newAttempts - 3);
         setLockTime(waitTime);
         setIsLocked(true);
       }
-    } else {
-      // Resetear estado al iniciar sesión con éxito
-      setAttempts(0);
-      setIsLocked(false);
-      setLockTime(0);
     }
   };
 
@@ -70,45 +75,41 @@ const Login = ({ setUser }) => {
       <div className="login-card">
         <h1 className="login-title">Iniciar Sesión</h1>
         <p className="login-subtitle">Accede a tu cuenta con facilidad</p>
-        {success && <p className="login-success">{success}</p>} {/* Add success message */}
         {error && <p className="login-error">{error}</p>}
         {isLocked && (
           <p className="login-warning">
             Demasiados intentos. Intenta nuevamente en {lockTime} segundos.
           </p>
         )}
-          
-          <form onSubmit={handleLogin} className="login-form">
-            <div className="login-input-group">
-              <label className="login-label">Correo Electrónico</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ingresa tu correo"
-                className="login-input"
-                required
-                disabled={isLocked} // Deshabilitar el campo si está bloqueado
-              />
-            </div>
-            <div className="login-input-group">
-              <label className="login-label">Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu contraseña"
-                className="login-input"
-                required
-                disabled={isLocked}
-
-              />
-            </div>
-            <button type="submit" className="login-button" disabled={isLocked}>
-              Iniciar Sesión
-              </button>
-          </form>
-        {/* Enlaces adicionales */}
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="login-input-group">
+            <label className="login-label">Correo Electrónico</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ingresa tu correo"
+              className="login-input"
+              required
+              disabled={isLocked}
+            />
+          </div>
+          <div className="login-input-group">
+            <label className="login-label">Contraseña</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ingresa tu contraseña"
+              className="login-input"
+              required
+              disabled={isLocked}
+            />
+          </div>
+          <button type="submit" className="login-button" disabled={isLocked}>
+            Iniciar Sesión
+          </button>
+        </form>
         <div className="login-links-container">
           <p className="login-link-text">
             ¿Olvidaste tu contraseña?{' '}

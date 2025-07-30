@@ -65,7 +65,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
   const handlePrioritySelection = (priority) => {
     setIsPrioritario(priority);
     setShowPriorityModal(false);
-    // Proceder con la solicitud inmediatamente después de seleccionar
     handleRequestTurno(priority);
   };
 
@@ -93,7 +92,7 @@ const PedirTurno = ({ user: userProp, setUser }) => {
       setSuccess(`Cita N° ${newTurno.numero} confirmada exitosamente en ${puntoNombre}.`);
       setTipoCita('');
       setIsPrioritario(null);
-      setTimeout(() => navigate('/turno-tablero'), 1500);
+      setTimeout(() => navigate('/turno-tablero', { state: { selectedPunto } }), 1500);
     } catch (err) {
       const errorDetail = err.response?.data?.detail || err.response?.data?.error || 'Error desconocido';
       setError('Error al procesar su solicitud: ' + (errorDetail || err.message));
@@ -182,7 +181,6 @@ const PedirTurno = ({ user: userProp, setUser }) => {
           </div>
         </div>
 
-        {/* Modal de Prioridad */}
         {showPriorityModal && (
           <div className="modal-overlay" onClick={closeModal}>
             <div className="priority-modal" onClick={(e) => e.stopPropagation()}>

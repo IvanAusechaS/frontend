@@ -50,39 +50,60 @@ const Home = ({ user, setUser }) => {
       {/* Carrusel visual */}
       <ImageCarousel />
 
-      {/* Nuestros Servicios */}
+            {/* Nuestros Servicios */}
       <section className="services-gallery-section" id="services-gallery-section">
         <h2 className="services-gallery-title">Nuestros Servicios</h2>
         <p className="services-gallery-subtitle">Brindamos una atención integral y de calidad para tu salud Ocular.</p>
         <div className="services-gallery-grid">
+          
           <div className="service-image-card" onClick={() => navigate('/servicios', { state: { scrollTo: 'urgencias' } })} style={{ cursor: 'pointer' }}>
             <img src={process.env.PUBLIC_URL + '/images/urgencias.jpg'} alt="Urgencias Oftalmológicas" />
             <div className="service-image-overlay">
               <h3>Atención de Urgencias Oftalmológicas</h3>
               <p>Contamos con un equipo especializado disponible 24/7 para atender cualquier emergencia oftalmológica. Nuestro servicio incluye diagnóstico inmediato, tratamiento de lesiones oculares, y seguimiento personalizado.</p>
             </div>
+            <div className="service-text-content">
+              <h3>Atención de Urgencias Oftalmológicas</h3>
+              <p>Contamos con un equipo especializado disponible 24/7 para atender cualquier emergencia oftalmológica. Nuestro servicio incluye diagnóstico inmediato, tratamiento de lesiones oculares, y seguimiento personalizado.</p>
+            </div>
           </div>
+
           <div className="service-image-card" onClick={() => navigate('/servicios', { state: { scrollTo: 'lentes' } })} style={{ cursor: 'pointer' }}>
             <img src={process.env.PUBLIC_URL + '/images/lentes.jpg'} alt="Obtención de Gafas Formuladas" />
             <div className="service-image-overlay">
               <h3>Obtención de Gafas Formuladas</h3>
               <p>Accede a lentes diseñados a tu medida con tecnología de alta calidad. Ofrecemos asesoría profesional para garantizar la mejor elección según tus necesidades visuales.</p>
             </div>
+            <div className="service-text-content">
+              <h3>Obtención de Gafas Formuladas</h3>
+              <p>Accede a lentes diseñados a tu medida con tecnología de alta calidad. Ofrecemos asesoría profesional para garantizar la mejor elección según tus necesidades visuales.</p>
+            </div>
           </div>
+
           <div className="service-image-card" onClick={() => navigate('/servicios', { state: { scrollTo: 'cirugia' } })} style={{ cursor: 'pointer' }}>
             <img src={process.env.PUBLIC_URL + '/images/cirugia.jpg'} alt="Cirugía Refractiva" />
             <div className="service-image-overlay">
               <h3>Cirugía Refractiva</h3>
               <p>Corrige problemas como miopía, astigmatismo e hipermetropía con procedimientos modernos y seguros. Recupera tu visión sin depender de gafas o lentes de contacto.</p>
             </div>
+            <div className="service-text-content">
+              <h3>Cirugía Refractiva</h3>
+              <p>Corrige problemas como miopía, astigmatismo e hipermetropía con procedimientos modernos y seguros. Recupera tu visión sin depender de gafas o lentes de contacto.</p>
+            </div>
           </div>
+
           <div className="service-image-card" onClick={() => navigate('/servicios', { state: { scrollTo: 'atencion' } })} style={{ cursor: 'pointer' }}>
             <img src={process.env.PUBLIC_URL + '/images/atencion.jpg'} alt="Consulta Oftalmológica" />
             <div className="service-image-overlay">
               <h3>Consulta Oftalmológica</h3>
               <p>Evaluaciones completas para el diagnóstico y tratamiento de enfermedades oculares. Nuestros especialistas te guiarán en el mejor cuidado para preservar tu salud visual.</p>
             </div>
+            <div className="service-text-content">
+              <h3>Consulta Oftalmológica</h3>
+              <p>Evaluaciones completas para el diagnóstico y tratamiento de enfermedades oculares. Nuestros especialistas te guiarán en el mejor cuidado para preservar tu salud visual.</p>
+            </div>
           </div>
+
         </div>
       </section>
       {/* Sección 1: Bienvenida */}
@@ -240,15 +261,7 @@ const Home = ({ user, setUser }) => {
       </section>
 
       {/* Sección 4: Nuestro Equipo */}
-      <div className="equipo-home-btn-container" style={{ textAlign: 'center', margin: '32px 0' }}>
-        <button
-          className="equipo-home-btn"
-          style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: '20px', padding: '12px 32px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(25, 118, 210, 0.12)' }}
-          onClick={() => navigate('/equipo')}
-        >
-          Ver todo nuestro equipo
-        </button>
-      </div>
+      
       <section className="team-section">
         <h2 className="team-title">Nuestro Equipo</h2>
         <p className="team-subtitle">Conoce a nuestros especialistas altamente calificados, comprometidos con tu salud visual</p>

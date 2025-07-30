@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentTurnos, getPuntosAtencionServices } from '../../../services/api';
 import adPlaceholder from '../../../assets/images/publicidad.jpeg';
 import './TurnoTablero.css';
@@ -13,6 +13,7 @@ const TurnoTablero = ({ user: userProp, setUser }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = React.useMemo(() => userProp || JSON.parse(localStorage.getItem('user')) || {}, [userProp]);
 
@@ -63,7 +64,7 @@ const TurnoTablero = ({ user: userProp, setUser }) => {
         
         const puntosData = await getPuntosAtencionServices();
         setPuntosServicios(puntosData);
-        const initialPunto = Object.keys(puntosData)[0] || '';
+        const initialPunto = location.state?.selectedPunto || Object.keys(puntosData)[0] || '';
         setSelectedPunto(initialPunto);
 
         if (initialPunto) {
@@ -97,11 +98,11 @@ const TurnoTablero = ({ user: userProp, setUser }) => {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, [navigate, setUser, user.id, selectedPunto]);
+  }, [navigate, setUser, user.id, location.state?.selectedPunto]);
 
   const handlePuntoChange = async (puntoId) => {
-    setSelectedPunto(puntoId);
     try {
+      setSelectedPunto(puntoId);
       const turnosData = await getCurrentTurnos(puntoId);
       const turnos = turnosData.turnos || [];
       setCurrentTurnos(turnos);
@@ -116,7 +117,7 @@ const TurnoTablero = ({ user: userProp, setUser }) => {
         setWaitingTime(null);
       }
     } catch (err) {
-      setError('Error al cargar las citas: ' + (err.response?.data?.detail || err.message));
+      setError('Error al cambiar de punto de atención: ' + (err.response?.data?.detail || err.message));
     }
   };
 
