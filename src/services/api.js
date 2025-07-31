@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 
-const API_URL = 'http://127.0.0.1:8000/api/tickets/';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api/tickets/';
 
 // Configura una instancia de axios con headers por defecto
 const api = axios.create({
   baseURL: API_URL,
-  headers:{
+  headers: {
     'Content-Type': 'application/json',
   },  
 });
