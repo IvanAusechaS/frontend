@@ -99,19 +99,19 @@ export const cancelTurno = async (turnoId) => {
   }
 };
 
-export const getCurrentTurnos = async (puntoAtencionId) => {
+
+export const getCurrentTurnos = async (puntoAtencionId, date = new Date().toISOString().split('T')[0]) => {
   try {
     const response = await api.get('turnos/colas/', {
-      params: { punto_atencion_id: puntoAtencionId }
+      params: { punto_atencion_id: puntoAtencionId, fecha: date }
     });
-    console.log('Colas de turnos:', response.data);
+    console.log('Colas de turnos para fecha', date, ':', response.data);
     return response.data; // Devuelve { turnos: [...] }
   } catch (error) {
     console.error('Error en getCurrentTurnos:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
-
 export const createTurno = async (turnoData, userId) => {
   try {
     console.log('Datos enviados a /turnos/create/:', turnoData);

@@ -1,0 +1,198 @@
+/* EstadisticasGraficas.css */
+
+.estadisticas-graficas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg, 20px);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.estadisticas-graficas .dashboard-card {
+  background-color: var(--card-bg, #ffffff);
+  border-radius: 12px;
+  padding: var(--padding-lg, 20px);
+  border: 1px solid var(--border-color, #dee2e6);
+  box-shadow: var(--shadow-light, 0 2px 4px rgba(0, 0, 0, 0.05));
+  transition: var(--transition, all 0.3s ease);
+  overflow: hidden;
+}
+
+.estadisticas-graficas .dashboard-card:hover {
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transform: translateY(-1px);
+}
+
+.estadisticas-graficas .dashboard-card h3 {
+  margin: 0 0 var(--gap-md, 16px) 0;
+  color: var(--primary-dark, #1d4b8f);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 2px solid var(--primary-light, #e8f0fd);
+  padding-bottom: var(--padding-sm, 12px);
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.chart-container p {
+  color: var(--text-muted, #6c757d);
+  font-style: italic;
+  text-align: center;
+  padding: var(--padding-xl, 24px);
+  background-color: var(--background, #f8f9fa);
+  border-radius: 8px;
+  border: 2px dashed var(--border-color, #dee2e6);
+  margin: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+/* Responsive Design */
+
+/* Tablets medianas y grandes (768px - 1200px) */
+@media (min-width: 768px) {
+  .estadisticas-graficas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-container {
+    height: 280px;
+  }
+}
+
+/* Pantallas grandes (más de 1200px) */
+@media (min-width: 1201px) {
+  .estadisticas-graficas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-container {
+    height: 320px;
+  }
+}
+
+/* Móviles (hasta 480px) */
+@media (max-width: 480px) {
+  .estadisticas-graficas .dashboard-card {
+    padding: var(--padding-md, 16px);
+  }
+  
+  .estadisticas-graficas .dashboard-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: var(--gap-sm, 12px);
+    padding-bottom: var(--padding-xs, 8px);
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+  
+  .chart-container p {
+    font-size: 0.85rem;
+    padding: var(--padding-md, 16px);
+  }
+}
+
+/* Tablets pequeñas (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .chart-container {
+    height: 280px;
+  }
+}
+
+/* Ajustes específicos para Chart.js */
+.estadisticas-graficas canvas {
+  border-radius: 8px;
+}
+
+/* Estados de carga y error */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-muted, #6c757d);
+  font-style: italic;
+}
+
+.chart-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--danger, #dc3545);
+  background-color: var(--danger-light, #f8d7da);
+  border-radius: 8px;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  font-weight: 500;
+  text-align: center;
+  padding: var(--padding-lg, 20px);
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .estadisticas-graficas .dashboard-card {
+    transition: none;
+  }
+  
+  .estadisticas-graficas .dashboard-card:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .estadisticas-graficas .dashboard-card {
+    background-color: #ffffff;
+    border-color: #404040;
+  }
+  
+  .estadisticas-graficas .dashboard-card h3 {
+    color: #ffffff;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .chart-container p {
+    color: #b0b0b0;
+    background-color: #ececec;
+    border-color: #404040;
+  }
+}
+
+/* Print styles */
+@media print {
+  .estadisticas-graficas {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .estadisticas-graficas .dashboard-card {
+    box-shadow: none;
+    border: 1px solid #dee2e6;
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+}

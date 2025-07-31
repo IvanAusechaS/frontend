@@ -1,0 +1,595 @@
+/* AdminUsuarios.css - Panel de Administración de Puntos de Atención */
+
+/* Contenedor principal */
+.admin-usuarios-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(32, 131, 227, 0.08);
+  padding: 32px;
+  min-height: calc(100vh - 80px);
+}
+
+/* Asegurar fondo blanco en el body */
+body {
+  background: #fff !important;
+}
+
+/* Títulos */
+.admin-usuarios-container h2 {
+  color: #2083e3;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  text-align: center;
+  border-bottom: 3px solid #2083e3;
+  padding-bottom: 12px;
+}
+
+.admin-usuarios-container h3 {
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 32px 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-usuarios-container h3::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: #2083e3;
+  border-radius: 2px;
+}
+
+/* Mensajes de estado */
+.error-message {
+  color: #c00;
+  background: #fdecea;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 4px solid #c00;
+  font-weight: 500;
+}
+
+.success-message {
+  color: #388e3c;
+  background: #e8f5e9;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 4px solid #388e3c;
+  font-weight: 500;
+}
+
+/* Formulario de creación */
+.form-crear-punto {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.form-crear-punto input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccd;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.form-crear-punto input:focus {
+  outline: none;
+  border-color: #2083e3;
+  box-shadow: 0 0 0 3px rgba(32, 131, 227, 0.1);
+}
+
+.form-crear-punto input::placeholder {
+  color: #888;
+}
+
+.btn-crear {
+  padding: 12px 24px;
+  font-weight: 700;
+  border-radius: 6px;
+  background: #2083e3;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.btn-crear:hover {
+  background: #1a6bb8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(32, 131, 227, 0.3);
+}
+
+/* Listas de puntos */
+.puntos-list {
+  margin-bottom: 32px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+.puntos-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.punto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.punto-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.punto-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.punto-nombre {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+
+.punto-ubicacion {
+  color: #888;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+.empty-state {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #f0f0f0;
+}
+
+/* Botones de acción */
+.btn-inactivar {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.btn-inactivar:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-eliminar {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.btn-eliminar:hover {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+.btn-activar {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.btn-activar:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+/* Tabla de profesionales */
+.loading-message {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+  font-size: 16px;
+}
+
+.profesionales-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.profesionales-table thead {
+  background: #2083e3;
+  color: #fff;
+}
+
+.profesionales-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profesionales-table tbody tr {
+  background: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.profesionales-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.profesionales-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.profesionales-table tbody tr:nth-child(even):hover {
+  background: #f0f0f0;
+}
+
+.profesionales-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.punto-asignado {
+  font-weight: 600;
+  color: #2083e3;
+}
+
+.sin-asignar {
+  color: #888;
+  font-style: italic;
+}
+
+.select-punto {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccd;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.select-punto:focus {
+  outline: none;
+  border-color: #2083e3;
+  box-shadow: 0 0 0 3px rgba(32, 131, 227, 0.1);
+}
+
+/* Responsive Design */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+  .admin-usuarios-container {
+    max-width: 95%;
+    padding: 24px;
+    margin: 20px auto;
+    background: #fff;
+  }
+  
+  .form-crear-punto {
+    padding: 16px;
+    background: #fff;
+  }
+  
+  .profesionales-table th,
+  .profesionales-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .admin-usuarios-container {
+    padding: 20px;
+    margin: 10px;
+    border-radius: 8px;
+    background: #fff;
+  }
+  
+  .admin-usuarios-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .admin-usuarios-container h3 {
+    font-size: 18px;
+    margin: 24px 0 12px 0;
+  }
+  
+  .form-crear-punto {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: #fff;
+  }
+  
+  .form-crear-punto input {
+    margin-bottom: 0;
+  }
+  
+  .btn-crear {
+    width: 100%;
+    padding: 14px;
+  }
+  
+  .punto-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .punto-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  /* Tabla responsiva en tablets */
+  .profesionales-table {
+    font-size: 12px;
+  }
+  
+  .profesionales-table th,
+  .profesionales-table td {
+    padding: 8px 4px;
+  }
+  
+  .select-punto {
+    min-width: 120px;
+    font-size: 12px;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .admin-usuarios-container {
+    margin: 5px;
+    padding: 16px;
+    border-radius: 6px;
+    background: #fff;
+  }
+  
+  .admin-usuarios-container h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .admin-usuarios-container h3 {
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+  }
+  
+  .form-crear-punto {
+    padding: 12px;
+    gap: 12px;
+    background: #fff;
+  }
+  
+  .form-crear-punto input {
+    padding: 10px 12px;
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+  
+  .btn-crear {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .punto-item {
+    padding: 12px;
+  }
+  
+  .punto-nombre {
+    font-size: 14px;
+  }
+  
+  .punto-ubicacion {
+    font-size: 12px;
+  }
+  
+  .punto-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-inactivar,
+  .btn-eliminar,
+  .btn-activar {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  /* Convertir tabla en cards en móvil */
+  .profesionales-table,
+  .profesionales-table thead,
+  .profesionales-table tbody,
+  .profesionales-table th,
+  .profesionales-table td,
+  .profesionales-table tr {
+    display: block;
+  }
+  
+  .profesionales-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .profesionales-table tr {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profesionales-table td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding: 12px 0 12px 40%;
+    font-size: 14px;
+  }
+  
+  .profesionales-table td:last-child {
+    border-bottom: none;
+    padding-left: 0;
+  }
+  
+  .profesionales-table td:before {
+    content: attr(data-label) ": ";
+    position: absolute;
+    left: 0;
+    width: 35%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #2083e3;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  
+  .select-punto {
+    width: 100%;
+    min-width: unset;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 320px) {
+  .admin-usuarios-container {
+    margin: 2px;
+    padding: 12px;
+    background: #fff;
+  }
+  
+  .admin-usuarios-container h2 {
+    font-size: 18px;
+  }
+  
+  .form-crear-punto {
+    padding: 8px;
+    background: #fff;
+  }
+  
+  .punto-item {
+    padding: 8px;
+  }
+  
+  .profesionales-table tr {
+    padding: 12px;
+    background: #fff;
+  }
+  
+  .profesionales-table td {
+    padding: 8px 0 8px 35%;
+    font-size: 13px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-usuarios-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.punto-item,
+.profesionales-table tr {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Estados de hover mejorados */
+@media (hover: hover) {
+  .punto-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .profesionales-table tbody tr:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

@@ -1,0 +1,92 @@
+.servicios-por-punto {
+  margin-top: 20px;
+}
+
+.punto-servicios-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.servicios-list {
+  margin: 10px 0;
+}
+
+.servicio-tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-radius: 3px;
+}
+
+.no-servicios {
+  color: #888;
+}
+
+.btn-edit-servicios {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-edit-servicios:hover {
+  background-color: #45a049;
+}
+
+.edit-servicios-form {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.servicios-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.servicio-checkbox {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-save, .btn-cancel {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-save {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: #45a049;
+}
+
+.btn-cancel {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #da190b;
+}
