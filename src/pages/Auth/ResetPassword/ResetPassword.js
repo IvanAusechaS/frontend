@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './ResetPassword.css';
 
-const API_URL = 'http://localhost:8000/api/tickets/';
+const API_URL = 'https://proyecto-final-desarrollo-de-software-i-cg29.onrender.com/api/tickets/';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
