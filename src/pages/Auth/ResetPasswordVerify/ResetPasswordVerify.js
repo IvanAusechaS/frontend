@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './ResetPasswordVerify.css';
 
-const API_URL = 'http://localhost:8000/api/tickets/';
+const API_URL = 'https://proyecto-final-desarrollo-de-software-i-cg29.onrender.com/api/tickets/';
 
 const ResetPasswordVerify = () => {
   const [code, setCode] = useState('');
